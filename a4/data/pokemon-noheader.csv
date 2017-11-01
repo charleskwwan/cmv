@@ -1,4 +1,3 @@
-id,name,type1,type2,ability1,ability2,abilityH,hp,attack,defense,spattack,spdefense,speed,total,wgt,hgt,classification,percentMale,percentFemale,preEvolution,eggGroup1,eggGroup2
 1,Bulbasaur,Grass,Poison,Overgrow,,Chlorophyll,45,49,49,65,65,45,318,15.2,2.33,Seed Pokémon,0.875,0.125,,Monster,Grass
 2,Ivysaur,Grass,Poison,Overgrow,,Chlorophyll,60,62,63,80,80,60,405,28.7,3.25,Seed Pokémon,0.875,0.125,Bulbasaur,Monster,Grass
 3,Venusaur,Grass,Poison,Overgrow,,Chlorophyll,80,82,83,100,100,80,525,220.5,6.58,Seed Pokémon,0.875,0.125,Ivysaur,Monster,Grass
