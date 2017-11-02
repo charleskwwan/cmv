@@ -14,7 +14,7 @@ public class PokeTable {
   }
   
   // example usage:
-  // query(["name","id"], ["age=12"]) == SELECT name,id FROM <tblname> WHERE age=12
+  // query(["name"], ["type=\"Fairy\""]) == SELECT name FROM <tblname> WHERE type="Fairy"
   public ArrayList<Pokemon> query(String[] columns, String[] conditions) {
     String colString = columns == null ? "*" : String.join(",", columns);
     String queryString = "SELECT " + colString + " FROM " + this.tblname;

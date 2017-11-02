@@ -21,4 +21,9 @@ public class Pokemon {
   public String preEvolution;
   public String eggGroup1;
   public String eggGroup2;
+  
+  public PImage getImage() {
+    String fname = String.valueOf(id) + ".png";
+    return loadImage(fname);
+  }
 }
