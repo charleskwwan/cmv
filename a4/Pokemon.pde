@@ -1,3 +1,5 @@
+import java.lang.reflect.*;
+
 public class Pokemon {
   public int id;
   public String name;
@@ -21,9 +23,35 @@ public class Pokemon {
   public String preEvolution;
   public String eggGroup1;
   public String eggGroup2;
+  private PImage image = null;
   
   public PImage getImage() {
-    String fname = String.valueOf(id) + ".png";
-    return loadImage(fname);
+    if (this.image == null) {
+      String fname = String.valueOf(id) + ".png";
+      this.image = loadImage(fname);
+    }
+    return this.image;
+  }
+  
+  private Object get(String name) {
+    try {
+      Class<?> cls = this.getClass();
+      Field field = cls.getField(name);
+      return field.get(this);
+    } catch (Exception e) {
+      return null;
+    }
+  }
+  
+  public int getInt(String name) {
+    return (Integer)get(name);
+  }
+  
+  public String getString(String name) {
+    return (String)get(name);
+  }
+  
+  public double getDouble(String name) {
+    return (Double)get(name);
   }
 }

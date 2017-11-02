@@ -1,4 +1,4 @@
-public static class ListUtil {  
+public static class ListUtils {  
   public static double sumDouble(ArrayList<Double> list) {
     if (list == null || list.size() < 1) return 0;
     double sum = 0;
