@@ -4,11 +4,16 @@ final color pointColor = color(30, 144, 255, 150);
 
 public class ScatterPlot extends Chart {
   private String xhead, yhead;
+  private float xlo, xhi, ylo, yhi;
+  private ArrayList<Pair<Float, Double>> xticks, yticks;
   
   public ScatterPlot(float x, float y, float w, float h, Controller ctrl, PokeTable tbl, String xhead, String yhead) {
     super(x, y, w, h, ctrl, tbl);
     this.xhead = xhead;
     this.yhead = yhead;
+    this.xlo = this.ylo = 0;
+    this.xhi = (float)ListUtils.maxDouble(getColumn(xhead));
+    this.yhi = (float)ListUtils.maxDouble(getColumn(yhead));
   }
   
   private ArrayList<Double> getColumn(String column) {
@@ -21,20 +26,31 @@ public class ScatterPlot extends Chart {
     return (int)((hi - lo) / 80);
   }
   
-  private boolean overPoint(float x, float y, float r) {
-    return pow(mouseX - x, 2) + pow(mouseY - y, 2) <= pow(r, 2);
+  //private ArrayList<Pair<Float, Double>> makeRange(float posxlo, float posxhi, double valxlo, double valxhi) {
+  //  int ngaps = getNumGaps(posxlo, 
+  //}
+  
+  private float getChartX() {
+    return getX() + textAscent() + textDescent() + textWidth(String.valueOf(this.yhi)) + 15;
   }
   
-  public void draw() {    
-    ArrayList<Double> xcol = getColumn(xhead);
-    ArrayList<Double> ycol = getColumn(yhead);
-    double xmax = ListUtils.maxDouble(xcol);
-    double ymax = ListUtils.maxDouble(ycol);
-    
-    float chartX = getX() + textAscent() + textDescent() + textWidth(String.valueOf(ymax)) + 15;
-    float chartY = getY();
-    float chartW = getX() + getWidth() - chartX;
-    float chartH = getHeight() - (2 * (textAscent() + textDescent()) + 15);
+  private float getChartY() {
+    return getY();
+  }
+  
+  private float getChartWidth() {
+    return getX() + getWidth() - getChartX();
+  }
+  
+  private float getChartHeight() {
+    return getHeight() - (2 * (textAscent() + textDescent()) + 15);
+  }
+  
+  public void draw() { 
+    float chartX = getChartX();
+    float chartY = getChartY();
+    float chartW = getChartWidth();
+    float chartH = getChartHeight();
     
     // axis lines
     stroke(0);
@@ -50,45 +66,50 @@ public class ScatterPlot extends Chart {
     text(yhead, 0, 0);
     popMatrix();
     
-    // x ticks
-    stroke(0);
+    // x grid
     fill(0);
     int xgaps = getNumGaps(0, chartW);
     for (int i = 0; i < xgaps + 1; i++) {
-      String tickStr = String.format("%.2f", i * xmax / xgaps);
+      String tickStr = String.format("%.2f", xlo + i * (xhi - xlo) / xgaps);
       float tickX = chartX + i * chartW / xgaps;
+      stroke(200);
+      line(tickX, chartY, tickX, chartY + chartH);
+      stroke(0);
       line(tickX, chartY + chartH, tickX, chartY + chartH + 5);
       text(tickStr, tickX - textWidth(tickStr) / 2, chartY + chartH + 25);
     }
     
-    // y ticks
-    stroke(0);
+    // y grid
     fill(0);
     int ygaps = getNumGaps(0, chartH);
     for (int i = 0; i < ygaps + 1; i++) {
-      String tickStr = String.format("%.2f", ymax - i * ymax / ygaps);
+      String tickStr = String.format("%.2f", yhi - i * (yhi - ylo) / ygaps);
       float tickY = chartY + i * chartH / ygaps;
+      stroke(200);
+      line(chartX, tickY, chartX + chartW, tickY);
+      stroke(0);
       line(chartX, tickY, chartX - 5, tickY);
       text(tickStr, chartX - textWidth(tickStr) - 10, tickY + 5);
     }
     
     // points
-    stroke(pointColor);
-    fill(pointColor);
     Pokemon over = null;
     for (Pokemon p : ps) {
-      float px = (float)(chartX + chartW * p.getDouble(this.xhead) / xmax);
-      float py = (float)(chartY + chartH - chartH * p.getDouble(this.yhead) / ymax);
-      if (overPoint(px, py, pointSize / 2)) {
+      float px = (float)(chartX + chartW * (p.getDouble(this.xhead) / xhi - xlo));
+      float py = (float)(chartY + chartH - chartH * (p.getDouble(this.yhead) / yhi - ylo));
+      if (OverUtils.overCircle(mouseX, mouseY, px, py, pointSize / 2)) {
         over = p;
       } else {
+        color pcolor = color(pokeColors.get(p.getString("type1")), 175);
+        stroke(pcolor);
+        fill(pcolor);
         ellipse(px, py, pointSize, pointSize);
       }
     }
     if (over != null) image(
       over.getImage(),
-      (float)(chartX + chartW * over.getDouble(this.xhead) / xmax) - imgSize / 2,
-      (float)(chartY + chartH - chartH * over.getDouble(this.yhead) / ymax) - imgSize / 2,
+      (float)(chartX + chartW * (over.getDouble(this.xhead) / xhi - xlo)) - imgSize / 2,
+      (float)(chartY + chartH - chartH * (over.getDouble(this.yhead) / yhi - ylo)) - imgSize / 2,
       imgSize,
       imgSize
     );
