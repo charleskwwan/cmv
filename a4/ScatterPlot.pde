@@ -36,8 +36,8 @@ public class ScatterPlot extends Chart {
   private class Point {
     private final float imgSize = 70;
     private final float pointSize = 10;
-    private Pokemon p;
-    private float x, y;
+    public Pokemon p;
+    public float x, y;
     
     public Point(Pokemon p, float x, float y) {
       this.p = p;
@@ -108,15 +108,9 @@ public class ScatterPlot extends Chart {
     line(chartX, chartY, chartX, chartY + chartH); // y axis
     
     // points
-    Point over = null;
-    for (Point pt : this.pts) {
-      if (pt.isOver()) {
-        over = pt;
-      } else {
-        pt.draw();
-      }
-    }
-    if (over != null) over.drawImage();
+    List<Pokemon> hovered = this.controller.getHovered();
+    for (Point pt : this.pts) if (!hovered.contains(pt.p)) pt.draw();
+    for (Point pt : this.pts) if (hovered.contains(pt.p)) pt.drawImage();
     
     // drag rectangle
     if (this.dragStart != null) {
@@ -172,6 +166,18 @@ public class ScatterPlot extends Chart {
     makePoints();
   }
   
+  private Point onWhichPoint() {
+      for (Point pt : this.pts) {
+        if (pt.isOver()) return pt;
+      }
+      return null;
+  }
+  
+  public void onOver() {
+    Point over = onWhichPoint();
+    if (over != null) this.controller.addHovered(over.p);
+  }
+  
   public void onPress() {
     if (isOver() && mouseButton == LEFT)
       this.dragStart = new Pair<Float, Float>((float)mouseX, (float)mouseY);
@@ -186,13 +192,7 @@ public class ScatterPlot extends Chart {
     if (isOver() && mouseButton == RIGHT) {
       resetRanges();
     } else {
-      Point over = null;
-      for (Point pt : this.pts) {
-        if (pt.isOver()) {
-          over = pt;
-          break;
-        }
-      }
+      Point over = onWhichPoint();
       if (over != null) {
         this.controller.addFilter("name='" + over.p.getString("name") + "'");
         makePoints();
