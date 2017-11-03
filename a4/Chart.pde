@@ -25,6 +25,7 @@ public abstract class Chart extends ViewPort {
     return doubles;
   }
   
-  public abstract void update();
   public abstract void draw();
+  public abstract void update();
+  public abstract void reset();
 }

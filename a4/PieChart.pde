@@ -54,20 +54,34 @@ public class PieChart extends Chart {
       offset += a;
     }
   }
+    
+  public void draw() {
+    for (Slice slc : this.slices) slc.draw();
+  }
   
   public void update() {
     makeSlices();
   }
   
-  public void draw() {
-    for (Slice slc : this.slices) slc.draw();
+  public void reset() {
+    makeSlices();
   }
   
   public void onOver() {
     for (Slice slc : this.slices) {
       if (slc.isOver()) {
         for (Pokemon p : slc.ps) this.controller.addHovered(p.id);
+        break;
       }
-    } 
+    }
+  }
+  
+  public void onClick() {
+    for (Slice slc : this.slices) {
+      if (slc.isOver() && mouseButton == LEFT) {
+        this.controller.addFilter(this.column + "='" + slc.type + "'");
+        break;
+      }
+    }
   }
 }

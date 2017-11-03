@@ -43,5 +43,7 @@ void mouseReleased() {
 }
 
 void mouseClicked() {
+  controller.onClick();
   scatter.onClick();
+  pie.onClick();
 }

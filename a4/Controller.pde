@@ -54,22 +54,24 @@ public class Controller implements Iterable<Pokemon> {
     String[] conds = this.filters.size() > 0 ? this.filters.toArray(new String[this.filters.size()]) : null;
     this.ps = this.tbl.query(null, conds);
     removeAllHovered();
-    for (Chart cht : this.charts) cht.update();
   }
   
   public void addFilter(String filter) {
     this.filters.add(filter);
     reload();
+    for (Chart cht : this.charts) cht.update();
   }
   
   public void addFilters(String[] filter) {
     for (String f : filter) this.filters.add(f);
     reload();
+    for (Chart cht : this.charts) cht.update();
   }
   
   public void removeFilter(String filter) {
     this.filters.remove(filter);
     reload();
+    for (Chart cht : this.charts) cht.update();
   }
   
   public void removeColumnFilters(String column) {
@@ -79,14 +81,21 @@ public class Controller implements Iterable<Pokemon> {
       if (f.contains(column)) it.remove();
     }
     reload();
+    for (Chart cht : this.charts) cht.update();
   }
   
   public void removeAllFilters() {
     this.filters.clear();
     reload();
+    for (Chart cht : this.charts) cht.reset();
   }
   
   public Set<String> getFilters() {
     return Collections.unmodifiableSet(this.filters);
+  }
+  
+  public void onClick() {
+    if (OverUtils.overRect(mouseX, mouseY, 0, 0, width, height) && mouseButton == RIGHT)
+      removeAllFilters();
   }
 }

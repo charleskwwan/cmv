@@ -136,8 +136,11 @@ public class ScatterPlot extends Chart {
     }
   }
   
+  public void reset() {
+    resetRanges();
+  }
+  
   private void resetRanges() {
-    this.controller.removeAllFilters();
     this.xlo = this.ylo = 0;
     this.xhi = ListUtils.maxDouble(getColumnDouble(xhead));
     this.yhi = ListUtils.maxDouble(getColumnDouble(yhead));
@@ -185,7 +188,7 @@ public class ScatterPlot extends Chart {
   }
   
   public void onPress() {
-    if (isOver() && mouseButton == LEFT)
+    if (OverUtils.overRect(mouseX, mouseY, getChartX(), getChartY(), getChartWidth(), getChartHeight()) && mouseButton == LEFT)
       this.dragStart = new Pair<Float, Float>((float)mouseX, (float)mouseY);
   }
   
@@ -195,9 +198,7 @@ public class ScatterPlot extends Chart {
   }
   
   public void onClick() {
-    if (isOver() && mouseButton == RIGHT) {
-      resetRanges();
-    } else {
+    if (isOver() && mouseButton == LEFT) {
       Point over = onWhichPoint();
       if (over != null) this.controller.addFilter("name='" + over.p.name + "'");
     }
