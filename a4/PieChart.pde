@@ -6,6 +6,7 @@ public class PieChart extends Chart {
     super(x, y, w, h, ctrl, tbl);
     this.column = col;
     this.slices = new ArrayList<Slice>();
+    makeSlices(); // temp
   }
   
   private float getRadius() {
@@ -13,6 +14,7 @@ public class PieChart extends Chart {
   }
   
   private class Slice {
+    private final float expandFact = 1.05;
     public String type;
     public ArrayList<Pokemon> ps;
     public float x, y, r, a1, a2;
@@ -28,10 +30,11 @@ public class PieChart extends Chart {
     }
     
     public void draw() {
-      color c = pokeColors.get(this.type);
-      stroke(c);
-      fill(c);
-      arc(this.x, this.y, this.r*2, this.r*2, this.a1, this.a2, PIE);
+      float rad = isOver() ? this.r * this.expandFact : this.r;
+      int opacity = isOver() ? 255 : 200;
+      noStroke();
+      fill(color(pokeColors.get(this.type), opacity));
+      arc(this.x, this.y, rad*2, rad*2, this.a1, this.a2, PIE);
     }
     
     public boolean isOver() {
@@ -39,10 +42,32 @@ public class PieChart extends Chart {
     }
   }
   
-  //private void makeSlices() {
-  //  slices.clear();
-  //}
+  private void makeSlices() {
+    slices.clear();
+    float offset = 0;
+    for (int i = 0; i < pokeTypes.length; i++) {
+      String type = pokeTypes[i];
+      ArrayList<Pokemon> tmons = getRows(new String[]{this.column + "='" + type + "'"});
+      if (tmons.size() == 0) continue;
+      float a = TWO_PI * (float)tmons.size() / this.controller.size();
+      slices.add(new Slice(getCenterX(), getCenterY(), getRadius(), offset, offset + a, type, tmons));
+      offset += a;
+    }
+  }
+  
+  public void update() {
+    makeSlices();
+  }
   
   public void draw() {
+    for (Slice slc : this.slices) slc.draw();
+  }
+  
+  public void onOver() {
+    for (Slice slc : this.slices) {
+      if (slc.isOver()) {
+        for (Pokemon p : slc.ps) this.controller.addHovered(p.id);
+      }
+    } 
   }
 }

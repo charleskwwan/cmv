@@ -10,6 +10,7 @@ public class ScatterPlot extends Chart {
     this.yhead = yhead;
     this.pts = new ArrayList<Point>();
     resetRanges();
+    makePoints();
     this.dragStart = null;
   }
   
@@ -108,9 +109,9 @@ public class ScatterPlot extends Chart {
     line(chartX, chartY, chartX, chartY + chartH); // y axis
     
     // points
-    List<Pokemon> hovered = this.controller.getHovered();
-    for (Point pt : this.pts) if (!hovered.contains(pt.p)) pt.draw();
-    for (Point pt : this.pts) if (hovered.contains(pt.p)) pt.drawImage();
+    Set<Integer> hovered = this.controller.getHovered();
+    for (Point pt : this.pts) if (!hovered.contains(pt.p.id)) pt.draw();
+    for (Point pt : this.pts) if (hovered.contains(pt.p.id)) pt.drawImage();
     
     // drag rectangle
     if (this.dragStart != null) {
@@ -120,6 +121,10 @@ public class ScatterPlot extends Chart {
       float othery = mouseY < chartY ? chartY : (mouseY > chartY + chartH ? chartY + chartH : mouseY);
       rect(min(dragStart.fst, otherx), min(dragStart.snd, othery), abs(dragStart.fst - otherx), abs(dragStart.snd - othery)); 
     }
+  }
+  
+  public void update() {
+    makePoints();
   }
   
   private void makePoints() {
@@ -136,7 +141,7 @@ public class ScatterPlot extends Chart {
     this.xlo = this.ylo = 0;
     this.xhi = ListUtils.maxDouble(getColumnDouble(xhead));
     this.yhi = ListUtils.maxDouble(getColumnDouble(yhead));
-    makePoints();
+    makePoints(); // still dont know why need second call
   }
   
   private void setRangesWithDrag() {
@@ -158,12 +163,13 @@ public class ScatterPlot extends Chart {
     this.ylo = ylo;
     this.yhi = yhi;
     
-    this.controller.addFilter(this.xhead + ">=" + String.valueOf(this.xlo));
-    this.controller.addFilter(this.xhead + "<=" + String.valueOf(this.xhi));
-    this.controller.addFilter(this.yhead + ">=" + String.valueOf(this.ylo));
-    this.controller.addFilter(this.yhead + "<=" + String.valueOf(this.yhi));
-    
-    makePoints();
+    String[] rangeFilters = {
+      this.xhead + ">=" + String.valueOf(this.xlo),
+      this.xhead + "<=" + String.valueOf(this.xhi),
+      this.yhead + ">=" + String.valueOf(this.ylo),
+      this.yhead + "<=" + String.valueOf(this.yhi)
+    };
+    this.controller.addFilters(rangeFilters);
   }
   
   private Point onWhichPoint() {
@@ -193,10 +199,7 @@ public class ScatterPlot extends Chart {
       resetRanges();
     } else {
       Point over = onWhichPoint();
-      if (over != null) {
-        this.controller.addFilter("name='" + over.p.name + "'");
-        makePoints();
-      }
+      if (over != null) this.controller.addFilter("name='" + over.p.name + "'");
     }
   }
 }

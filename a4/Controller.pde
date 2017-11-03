@@ -1,14 +1,16 @@
 public class Controller implements Iterable<Pokemon> {
   private PokeTable tbl;
   private ArrayList<Pokemon> ps;
-  private ArrayList<Pokemon> hovered;
+  private HashSet<Integer> hovered;
   private HashSet<String> filters;
+  private ArrayList<Chart> charts;
   
   public Controller(PokeTable tbl) {
     this.tbl = tbl;
     this.filters = new HashSet<String>();
     this.ps = this.tbl.query(null, null);
-    this.hovered = new ArrayList<Pokemon>();
+    this.hovered = new HashSet<Integer>();
+    this.charts = new ArrayList<Chart>();
   }
   
   public int size() {
@@ -24,13 +26,12 @@ public class Controller implements Iterable<Pokemon> {
     return this.ps.iterator();
   }
   
+  public void addChart(Chart chart) {
+    this.charts.add(chart);
+  }
+  
   public void addHovered(int id) {
-    for (Pokemon p : this.ps) {
-      if (p.id == id) {
-        this.hovered.add(p);
-        break;
-      }
-    }
+    this.hovered.add(id);
   }
   
   public void addHovereds(int[] ids) {
@@ -38,29 +39,31 @@ public class Controller implements Iterable<Pokemon> {
   }
   
   public void removeHovered(int id) {
-    Iterator<Pokemon> it = this.hovered.iterator();
-    while(it.hasNext()) {
-      Pokemon p = it.next();
-      if (p.id == id) it.remove();
-    }
+    this.hovered.remove(id);
   }
   
   public void removeAllHovered() {
     this.hovered.clear();
   }
   
-  public List<Pokemon> getHovered() {
-    return Collections.unmodifiableList(this.hovered);
+  public Set<Integer> getHovered() {
+    return Collections.unmodifiableSet(this.hovered);
   }
   
   private void reload() {
     String[] conds = this.filters.size() > 0 ? this.filters.toArray(new String[this.filters.size()]) : null;
     this.ps = this.tbl.query(null, conds);
     removeAllHovered();
+    for (Chart cht : this.charts) cht.update();
   }
   
   public void addFilter(String filter) {
     this.filters.add(filter);
+    reload();
+  }
+  
+  public void addFilters(String[] filter) {
+    for (String f : filter) this.filters.add(f);
     reload();
   }
   
@@ -81,5 +84,9 @@ public class Controller implements Iterable<Pokemon> {
   public void removeAllFilters() {
     this.filters.clear();
     reload();
+  }
+  
+  public Set<String> getFilters() {
+    return Collections.unmodifiableSet(this.filters);
   }
 }
