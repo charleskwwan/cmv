@@ -9,6 +9,10 @@ public class PieChart extends Chart {
     makeSlices(); // temp
   }
   
+  public String getColumn() {
+    return this.column;
+  }
+  
   private float getRadius() {
     return min(getWidth(), getHeight()) / 2 - 20;
   }
@@ -65,6 +69,10 @@ public class PieChart extends Chart {
   
   public void reset() {
     makeSlices();
+  }
+  
+  public boolean isOver() {
+    return OverUtils.overCircle(mouseX, mouseY, getCenterX(), getCenterY(), getRadius());
   }
   
   public void onOver() {

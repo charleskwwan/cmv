@@ -1,6 +1,6 @@
 final String[] pokeTypes = {"Normal", "Fire", "Water", "Electric", "Grass", "Ice", "Fighting",
                             "Poison", "Ground", "Flying", "Psychic", "Bug", "Rock", "Ghost",
-                            "Dragon", "Dark", "Steel", "Fairy"};
+                            "Dragon", "Dark", "Steel", "Fairy", ""};
 final HashMap<String, Integer> pokeColors = makePokeColors();
 
 public class Pokemon {
@@ -79,5 +79,6 @@ HashMap<String, Integer> makePokeColors() {
   colors.put("Dark", #705746);
   colors.put("Steel", #B7B7CE);
   colors.put("Fairy", #D685AD);
+  colors.put("", 0); // no type
   return colors;
 }
