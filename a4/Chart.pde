@@ -15,5 +15,11 @@ public abstract class Chart extends ViewPort {
     return table.query(null, null);
   }
   
+  protected ArrayList<Double> getColumnDouble(String column) {
+    ArrayList<Double> doubles = new ArrayList<Double>();
+    for (Pokemon p : ps) doubles.add(p.getDouble(column));
+    return doubles;
+  }
+  
   public abstract void draw();
 }

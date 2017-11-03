@@ -11,3 +11,15 @@ void draw() {
   background(255);
   scatter.draw();
 }
+
+void mousePressed() {
+  scatter.onPress();
+}
+
+void mouseReleased() {
+  scatter.onRelease();
+}
+
+void mouseClicked() {
+  scatter.onClick();
+}

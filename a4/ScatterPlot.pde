@@ -4,34 +4,35 @@ final color pointColor = color(30, 144, 255, 150);
 
 public class ScatterPlot extends Chart {
   private String xhead, yhead;
-  private float xlo, xhi, ylo, yhi;
+  private double xlo, xhi, ylo, yhi;
   private ArrayList<Pair<Float, Double>> xticks, yticks;
+  private Pair<Float, Float> dragStart;
   
   public ScatterPlot(float x, float y, float w, float h, Controller ctrl, PokeTable tbl, String xhead, String yhead) {
     super(x, y, w, h, ctrl, tbl);
     this.xhead = xhead;
     this.yhead = yhead;
-    this.xlo = this.ylo = 0;
-    this.xhi = (float)ListUtils.maxDouble(getColumn(xhead));
-    this.yhi = (float)ListUtils.maxDouble(getColumn(yhead));
-  }
-  
-  private ArrayList<Double> getColumn(String column) {
-    ArrayList<Double> doubles = new ArrayList<Double>();
-    for (Pokemon p : ps) doubles.add(p.getDouble(column));
-    return doubles;
+    resetRanges();
+    this.dragStart = null;
   }
   
   private int getNumGaps(double lo, double hi) {
-    return (int)((hi - lo) / 80);
+    return (int)(abs((float)(hi - lo)) / 80);
   }
   
-  //private ArrayList<Pair<Float, Double>> makeRange(float posxlo, float posxhi, double valxlo, double valxhi) {
-  //  int ngaps = getNumGaps(posxlo, 
-  //}
+  private ArrayList<Pair<Float, Double>> makeRange(float poslo, float poshi, double vallo, double valhi) {
+    ArrayList<Pair<Float, Double>> range = new ArrayList<Pair<Float, Double>>();
+    int ngaps = getNumGaps(poslo, poshi);
+    for (int i = 0; i < ngaps + 1; i++) {
+      float pos = poslo + i * abs(poshi - poslo) / ngaps;
+      double val = vallo + i * abs((float)(valhi - vallo)) / ngaps;
+      range.add(new Pair<Float, Double>(pos, val));
+    }
+    return range;
+  }
   
   private float getChartX() {
-    return getX() + textAscent() + textDescent() + textWidth(String.valueOf(this.yhi)) + 15;
+    return getX() + textAscent() + textDescent() + textWidth(String.format("%.2f", this.yhi)) + 15;
   }
   
   private float getChartY() {
@@ -52,11 +53,6 @@ public class ScatterPlot extends Chart {
     float chartW = getChartWidth();
     float chartH = getChartHeight();
     
-    // axis lines
-    stroke(0);
-    line(chartX, chartY + chartH, chartX + chartW, chartY + chartH); // x axis
-    line(chartX, chartY, chartX, chartY + chartH); // y axis
-    
     // headers
     fill(0);
     text(xhead, chartX + chartW / 2, getY() + getHeight() - textAscent() - textDescent() + 10); // x header
@@ -68,35 +64,40 @@ public class ScatterPlot extends Chart {
     
     // x grid
     fill(0);
-    int xgaps = getNumGaps(0, chartW);
-    for (int i = 0; i < xgaps + 1; i++) {
-      String tickStr = String.format("%.2f", xlo + i * (xhi - xlo) / xgaps);
-      float tickX = chartX + i * chartW / xgaps;
+    for (Pair<Float, Double> p : this.xticks) {
+      String tickStr = String.format("%.2f", p.snd);
       stroke(200);
-      line(tickX, chartY, tickX, chartY + chartH);
+      line(p.fst, chartY, p.fst, chartY + chartH);
       stroke(0);
-      line(tickX, chartY + chartH, tickX, chartY + chartH + 5);
-      text(tickStr, tickX - textWidth(tickStr) / 2, chartY + chartH + 25);
+      line(p.fst, chartY + chartH, p.fst, chartY + chartH + 5);
+      text(tickStr, p.fst - textWidth(tickStr) / 2, chartY + chartH + 25);
     }
     
     // y grid
     fill(0);
-    int ygaps = getNumGaps(0, chartH);
-    for (int i = 0; i < ygaps + 1; i++) {
-      String tickStr = String.format("%.2f", yhi - i * (yhi - ylo) / ygaps);
-      float tickY = chartY + i * chartH / ygaps;
+    //Pair<Float, Double> last = this.yticks.get(this.yticks.size()-1);
+    for (Pair<Float, Double> p : this.yticks) {
+      String tickStr = String.format("%.2f", abs((float)(this.yhi + this.ylo - p.snd)));
       stroke(200);
-      line(chartX, tickY, chartX + chartW, tickY);
+      line(chartX, p.fst, chartX + chartW, p.fst);
       stroke(0);
-      line(chartX, tickY, chartX - 5, tickY);
-      text(tickStr, chartX - textWidth(tickStr) - 10, tickY + 5);
+      line(chartX, p.fst, chartX - 5, p.fst);
+      text(tickStr, chartX - textWidth(tickStr) - 10, p.fst + 5);
     }
+    
+    // axis lines
+    stroke(0);
+    line(chartX, chartY + chartH, chartX + chartW, chartY + chartH); // x axis
+    line(chartX, chartY, chartX, chartY + chartH); // y axis
     
     // points
     Pokemon over = null;
     for (Pokemon p : ps) {
-      float px = (float)(chartX + chartW * (p.getDouble(this.xhead) / xhi - xlo));
-      float py = (float)(chartY + chartH - chartH * (p.getDouble(this.yhead) / yhi - ylo));
+      double xval = p.getDouble(this.xhead);
+      double yval = p.getDouble(this.yhead);
+      if (xval < this.xlo || xval > this.xhi || yval < this.ylo || yval > this.yhi) continue; // todo: remove after controller implemented
+      float px = (float)(chartX + chartW * ((xval- this.xlo) / (this.xhi - this.xlo)));
+      float py = (float)(chartY + chartH - chartH * ((yval - this.ylo) / (this.yhi - this.ylo)));
       if (OverUtils.overCircle(mouseX, mouseY, px, py, pointSize / 2)) {
         over = p;
       } else {
@@ -108,10 +109,64 @@ public class ScatterPlot extends Chart {
     }
     if (over != null) image(
       over.getImage(),
-      (float)(chartX + chartW * (over.getDouble(this.xhead) / xhi - xlo)) - imgSize / 2,
-      (float)(chartY + chartH - chartH * (over.getDouble(this.yhead) / yhi - ylo)) - imgSize / 2,
+      (float)(chartX + chartW * ((over.getDouble(this.xhead) - this.xlo) / (this.xhi - this.xlo))) - imgSize / 2,
+      (float)(chartY + chartH - chartH * ((over.getDouble(this.yhead) - this.ylo) / (this.yhi - this.ylo))) - imgSize / 2,
       imgSize,
       imgSize
     );
+    
+    // drag rectangle
+    if (this.dragStart != null) {
+      stroke(230, 100);
+      fill(230, 100);
+      float otherx = mouseX < chartX ? chartX : (mouseX > chartX + chartW ? chartX + chartW : mouseX);
+      float othery = mouseY < chartY ? chartY : (mouseY > chartY + chartH ? chartY + chartH : mouseY);
+      rect(min(dragStart.fst, otherx), min(dragStart.snd, othery), abs(dragStart.fst - otherx), abs(dragStart.snd - othery)); 
+    }
+  }
+  
+  private void resetRanges() {
+    this.xlo = this.ylo = 0;
+    this.xhi = ListUtils.maxDouble(getColumnDouble(xhead));
+    this.yhi = ListUtils.maxDouble(getColumnDouble(yhead));
+    this.xticks = makeRange(getChartX(), getChartX() + getChartWidth(), this.xlo, this.xhi);
+    this.yticks = makeRange(getChartY(), getChartY() + getChartHeight(), this.ylo, this.yhi);
+  }
+  
+  private void setRangesWithDrag() {
+    if (dragStart == null) return;
+    
+    float chartX = getChartX();
+    float chartY = getChartY();
+    float chartW = getChartWidth();
+    float chartH = getChartHeight();
+    float otherx = mouseX < chartX ? chartX : (mouseX > chartX + chartW ? chartX + chartW : mouseX);
+    float othery = mouseY < chartY ? chartY : (mouseY > chartY + chartH ? chartY + chartH : mouseY);
+    
+    double xlo = this.xlo + (this.xhi - this.xlo) * (min(dragStart.fst, otherx) - chartX) / chartW;
+    double xhi = this.xlo + (this.xhi - this.xlo) * (max(dragStart.fst, otherx) - chartX) / chartW;
+    this.xlo = xlo;
+    this.xhi = xhi;
+    double ylo = this.ylo + (this.yhi - this.ylo) * (chartY + chartH - max(dragStart.snd, othery)) / chartH;
+    double yhi = this.ylo + (this.yhi - this.ylo) * (chartY + chartH - min(dragStart.snd, othery)) / chartH;
+    this.ylo = ylo;
+    this.yhi = yhi;
+    
+    this.xticks = makeRange(chartX, chartX + chartW, this.xlo, this.xhi);
+    this.yticks = makeRange(chartY, chartY + chartH, this.ylo, this.yhi);
+  }
+  
+  public void onPress() {
+    if (isOver() && mouseButton == LEFT)
+      this.dragStart = new Pair<Float, Float>((float)mouseX, (float)mouseY);
+  }
+  
+  public void onRelease() {
+    if (dragStart != null && (dragStart.fst != mouseX || dragStart.snd != mouseY)) setRangesWithDrag();
+    this.dragStart = null;
+  }
+  
+  public void onClick() {
+    if (isOver() && mouseButton == RIGHT) resetRanges();
   }
 }
