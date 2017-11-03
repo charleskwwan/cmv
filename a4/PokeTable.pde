@@ -1,14 +1,13 @@
 import de.bezier.data.sql.*;
 final processing.core.PApplet APPLET = this;
 
-public class WrongRowType extends Exception {}
-
 public class PokeTable {
   private final String tblname;
   private SQLite db;
   
   public PokeTable(String fname, String tblname) {
     this.db = new SQLite(APPLET, fname);
+    this.db.connect();
     this.tblname = tblname;
   }
   
@@ -18,8 +17,6 @@ public class PokeTable {
     String colString = columns == null ? "*" : String.join(",", columns);
     String queryString = "SELECT " + colString + " FROM " + this.tblname;
     if (conditions != null) queryString += " WHERE " + String.join(" AND ", conditions);
-    
-    this.db.connect();
     this.db.query(queryString);
     ArrayList<Pokemon> rows = new ArrayList<Pokemon>();
     while (this.db.next()) {
@@ -27,7 +24,6 @@ public class PokeTable {
       db.setFromRow(r);
       rows.add(r);
     }
-    this.db.close();
     
     return rows;
   }

@@ -1,10 +1,12 @@
 PokeTable tbl;
+Controller ctrl;
 ScatterPlot scatter;
 
 void setup() {
   size(1600, 900);
   tbl = new PokeTable("pokemon.db", "pokemon");
-  scatter = new ScatterPlot(200, 200, 800, 500, new Controller(), tbl, "wgt", "hgt");
+  ctrl = new Controller(tbl);
+  scatter = new ScatterPlot(200, 200, 800, 500, ctrl, tbl, "wgt", "hgt");
 }
 
 void draw() {

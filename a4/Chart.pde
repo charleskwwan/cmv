@@ -1,23 +1,16 @@
 public abstract class Chart extends ViewPort {
   protected Controller controller;
   protected PokeTable table;
-  protected ArrayList<Pokemon> ps;
   
   public Chart(float x, float y, float w, float h, Controller ctrl, PokeTable tbl) {
     super(x, y, w, h);
     this.controller = ctrl;
     this.table = tbl;
-    this.ps = getRows();
-  }
-  
-  // todo: get restrictions from controller to narrow down query
-  protected ArrayList<Pokemon> getRows() {
-    return table.query(null, null);
   }
   
   protected ArrayList<Double> getColumnDouble(String column) {
     ArrayList<Double> doubles = new ArrayList<Double>();
-    for (Pokemon p : ps) doubles.add(p.getDouble(column));
+    for (Pokemon p : this.controller) doubles.add(p.getDouble(column));
     return doubles;
   }
   
