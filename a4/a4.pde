@@ -8,15 +8,19 @@ import de.bezier.data.sql.*;
 
 PokeTable table;
 Controller controller;
+Tooltips tooltips;
 ScatterPlot scatter;
 NestedPies pies;
 
 void setup() {
   size(1600, 900);
+  
   table = new PokeTable("pokemon.db", "pokemon");
   controller = new Controller(table);
+  tooltips = new Tooltips();
+  
   scatter = new ScatterPlot(960, 40, 600, 400, controller, table, "wgt", "hgt");
-  pies = new NestedPies(40, 40, 900, 820, controller, table, new String[]{"type1", "type2"});
+  pies = new NestedPies(40, 40, 920, 820, controller, table, new String[]{"type1", "type2"});
   controller.addChart(scatter);
   controller.addChart(pies);
 }
@@ -27,6 +31,7 @@ void draw() {
   mouseOver();
   scatter.draw();
   pies.draw();
+  tooltips.draw();
 }
 
 void mouseOver() {

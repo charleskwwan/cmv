@@ -22,6 +22,7 @@ public class NestedPies extends Chart {
   }
   
   public void update() {
+    if (this.controller.size() == 1) this.upTo = this.pcharts.size();
     for (int i = 0; i <= getLast(); i++) this.pcharts.get(i).update();
   }
   
@@ -43,7 +44,7 @@ public class NestedPies extends Chart {
     if (this.upTo < this.pcharts.size() && this.pcharts.get(this.upTo).isOver() && mouseButton == LEFT) {
       this.pcharts.get(this.upTo).onClick();
       this.upTo++;
-      if (this.upTo != this.pcharts.size()) this.pcharts.get(this.upTo).reset();
+      if (this.upTo < this.pcharts.size()) this.pcharts.get(this.upTo).reset();
       return;
     }
     for (int i = getLast(); i >= 0; i--) {

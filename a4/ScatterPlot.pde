@@ -34,7 +34,7 @@ public class ScatterPlot extends Chart {
     return getHeight() - (2 * (textAscent() + textDescent()) + 15);
   }
   
-  private class Point {
+  private class Point implements Tooltip{
     private final float imgSize = 70;
     private final float pointSize = 10;
     public Pokemon p;
@@ -55,6 +55,23 @@ public class ScatterPlot extends Chart {
     
     public void drawImage() {
       image(this.p.getImage(), this.x - this.imgSize/2, this.y - this.imgSize/2, imgSize, imgSize);
+    }
+    
+    public void drawTooltip() {
+      String nameStr = "name: " + this.p.name;
+      String dataStr = ScatterPlot.this.xhead + ": " + String.valueOf(this.p.getDouble(ScatterPlot.this.xhead)) + 
+                ", " + ScatterPlot.this.yhead + ": " + String.valueOf(this.p.getDouble(ScatterPlot.this.yhead));
+      float ttW = max(textWidth(nameStr), textWidth(dataStr)) + 10;
+      float ttH = 2 * (textAscent() + textDescent()) + 10;
+      float ttX = this.x - ttW / 2;
+      float ttY = this.y + this.imgSize / 2;
+      color ttcolor = pokeColors.get(this.p.type1);
+      noStroke();
+      fill(ttcolor, 200);
+      rect(ttX, ttY, ttW, ttH);
+      fill((red(ttcolor) + green(ttcolor) + blue(ttcolor)) / 3 > 128 ? 0 : 255);
+      text(nameStr, ttX + (ttW - textWidth(nameStr))/2, ttY + textAscent() + textDescent());
+      text(dataStr, ttX + (ttW - textWidth(dataStr))/2, ttY + 2 * (textAscent() + textDescent()));
     }
     
     public boolean isOver() {
@@ -144,7 +161,7 @@ public class ScatterPlot extends Chart {
     this.xlo = this.ylo = 0;
     this.xhi = ListUtils.maxDouble(getColumnDouble(xhead));
     this.yhi = ListUtils.maxDouble(getColumnDouble(yhead));
-    makePoints(); // still dont know why need second call
+    makePoints();
   }
   
   private void setRangesWithDrag() {
@@ -176,15 +193,16 @@ public class ScatterPlot extends Chart {
   }
   
   private Point onWhichPoint() {
-      for (Point pt : this.pts) {
-        if (pt.isOver()) return pt;
-      }
+      for (Point pt : this.pts) if (pt.isOver()) return pt;
       return null;
   }
   
   public void onOver() {
     Point over = onWhichPoint();
-    if (over != null) this.controller.addHovered(over.p.id);
+    if (over != null) {
+      this.controller.addHovered(over.p.id);
+      tooltips.add(over);
+    }
   }
   
   public void onPress() {

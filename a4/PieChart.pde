@@ -17,13 +17,14 @@ public class PieChart extends Chart {
     return min(getWidth(), getHeight()) / 2 - 20;
   }
   
-  private class Slice {
+  private class Slice implements Tooltip {
     private final float expandFact = 1.05;
     public String type;
     public ArrayList<Pokemon> ps;
     public float x, y, r, a1, a2;
     
     public Slice(float x, float y, float r, float a1, float a2, String type, ArrayList<Pokemon> ps) {
+      super();
       this.x = x;
       this.y = y;
       this.r = r;
@@ -34,11 +35,33 @@ public class PieChart extends Chart {
     }
     
     public void draw() {
-      float rad = isOver() ? this.r * this.expandFact : this.r;
-      int opacity = isOver() ? 255 : 200;
+      Set<Integer> hovered = PieChart.this.controller.getHovered();
+      float rad = this.r;
+      int opacity = 200;
+      for (Pokemon p : this.ps) {
+        if (hovered.contains(p.id)) {
+          rad = this.r * this.expandFact;
+          opacity = 255;
+          break;
+        }
+      }
       noStroke();
       fill(color(pokeColors.get(this.type), opacity));
       arc(this.x, this.y, rad*2, rad*2, this.a1, this.a2, PIE);
+    }
+    
+    public void drawTooltip() {
+      String typeStr = PieChart.this.column + ": " + (this.type == "" ? "None" : this.type);
+      String countStr = "count: " + String.valueOf(this.ps.size());
+      float ttW = max(textWidth(typeStr), textWidth(countStr)) + 15;
+      float ttH = 2 * (textAscent() + textDescent()) + 10;
+      color ttcolor = pokeColors.get(this.type);
+      noStroke();
+      fill(color(255-red(ttcolor), 255-green(ttcolor), 255-blue(ttcolor)), 200);
+      rect(mouseX, mouseY - ttH - 5, ttW, ttH);
+      fill((red(ttcolor) + green(ttcolor) + blue(ttcolor)) / 3 > 128 ? 255 : 0);
+      text(typeStr, mouseX + 5, mouseY - 2 * (textAscent() + textDescent()));
+      text(countStr, mouseX + 5, mouseY - textAscent() - textDescent());
     }
     
     public boolean isOver() {
@@ -79,6 +102,7 @@ public class PieChart extends Chart {
     for (Slice slc : this.slices) {
       if (slc.isOver()) {
         for (Pokemon p : slc.ps) this.controller.addHovered(p.id);
+        tooltips.add(slc);
         break;
       }
     }
