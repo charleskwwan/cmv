@@ -15,5 +15,11 @@ public abstract class Chart extends ViewPort {
     return table.query(null, null);
   }
   
+  protected ArrayList<Integer> getIntColumn(String column) {
+    ArrayList<Integer> integers = new ArrayList<Integer>();
+    for (Pokemon p : ps) integers.add(p.getInt(column));
+    return integers;
+  }
+  
   public abstract void draw();
 }
