@@ -1,4 +1,3 @@
-import de.bezier.data.sql.*;
 final processing.core.PApplet APPLET = this;
 
 public class PokeTable {

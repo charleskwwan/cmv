@@ -1,8 +1,3 @@
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-
 public class Controller implements Iterable<Pokemon> {
   private PokeTable tbl;
   private ArrayList<Pokemon> ps;
@@ -29,12 +24,25 @@ public class Controller implements Iterable<Pokemon> {
     return this.ps.iterator();
   }
   
-  public void addHovered(Pokemon p) {
-    this.hovered.add(p);
+  public void addHovered(int id) {
+    for (Pokemon p : this.ps) {
+      if (p.id == id) {
+        this.hovered.add(p);
+        break;
+      }
+    }
   }
   
-  public void removeHovered(Pokemon p) {
-    this.hovered.remove(p);
+  public void addHovereds(int[] ids) {
+    for (int id : ids) addHovered(id);
+  }
+  
+  public void removeHovered(int id) {
+    Iterator<Pokemon> it = this.hovered.iterator();
+    while(it.hasNext()) {
+      Pokemon p = it.next();
+      if (p.id == id) it.remove();
+    }
   }
   
   public void removeAllHovered() {

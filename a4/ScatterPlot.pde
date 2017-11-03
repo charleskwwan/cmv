@@ -46,7 +46,7 @@ public class ScatterPlot extends Chart {
     }
     
     public void draw() {
-      color pcolor = color(pokeColors.get(p.getString("type1")), 175);
+      color pcolor = color(pokeColors.get(p.type1), 175);
       stroke(pcolor);
       fill(pcolor);
       ellipse(this.x, this.y, this.pointSize, this.pointSize);
@@ -175,7 +175,7 @@ public class ScatterPlot extends Chart {
   
   public void onOver() {
     Point over = onWhichPoint();
-    if (over != null) this.controller.addHovered(over.p);
+    if (over != null) this.controller.addHovered(over.p.id);
   }
   
   public void onPress() {
@@ -194,7 +194,7 @@ public class ScatterPlot extends Chart {
     } else {
       Point over = onWhichPoint();
       if (over != null) {
-        this.controller.addFilter("name='" + over.p.getString("name") + "'");
+        this.controller.addFilter("name='" + over.p.name + "'");
         makePoints();
       }
     }

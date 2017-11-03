@@ -1,5 +1,3 @@
-import java.lang.reflect.*;
-
 final HashMap<String, Integer> pokeColors = makePokeColors();
 
 public class Pokemon {
