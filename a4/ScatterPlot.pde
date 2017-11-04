@@ -9,8 +9,7 @@ public class ScatterPlot extends Chart {
     this.xhead = xhead;
     this.yhead = yhead;
     this.pts = new ArrayList<Point>();
-    resetRanges();
-    makePoints();
+    reset();
     this.dragStart = null;
   }
   
@@ -155,13 +154,13 @@ public class ScatterPlot extends Chart {
   
   public void reset() {
     resetRanges();
+    makePoints();
   }
   
   private void resetRanges() {
     this.xlo = this.ylo = 0;
-    this.xhi = ListUtils.maxDouble(getColumnDouble(xhead));
-    this.yhi = ListUtils.maxDouble(getColumnDouble(yhead));
-    makePoints();
+    this.xhi = ListUtils.maxDouble(getColumnDouble(this.xhead));
+    this.yhi = ListUtils.maxDouble(getColumnDouble(this.yhead));
   }
   
   private void setRangesWithDrag() {
@@ -218,7 +217,7 @@ public class ScatterPlot extends Chart {
   public void onClick() {
     if (isOver() && mouseButton == LEFT) {
       Point over = onWhichPoint();
-      if (over != null) this.controller.addFilter("name='" + over.p.name + "'");
+      if (over != null) this.controller.addFilter("id='" + over.p.id + "'");
     }
   }
 }
