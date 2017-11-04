@@ -51,13 +51,21 @@ public class Histogram extends Chart {
     }
     
     public void draw() {
-      
       noStroke();
       fill(this.c, Histogram.this.controller.getHovered().contains(this.p.id) ? 255 : 150);
       rect(this.x, this.y, this.w, this.h);
     }
     
     public void drawTooltip() {
+      String nameStr = "name: " + this.p.name;
+      String headStr = head + ": " + this.p.getDouble(this.head);
+      float ttW = max(textWidth(nameStr), textWidth(headStr)) + 15;
+      float ttH = 2 * (textAscent() + textDescent()) + 10;
+      fill(30, 200);
+      rect(mouseX, mouseY - ttH - 5, ttW, ttH);
+      fill(255);
+      text(nameStr, mouseX + 5, mouseY - 2 * (textAscent() + textDescent()));
+      text(headStr, mouseX + 5, mouseY - textAscent() - textDescent());
     }
     
     public boolean isOver() {
@@ -107,7 +115,7 @@ public class Histogram extends Chart {
   private void makeBars() {
     this.bars.clear();
     float chartX = getChartX(), chartY = getChartY(), chartW = getChartWidth(), chartH = getChartHeight();
-    ArrayList<Pokemon> ps = getRows(new String[]{this.lhead + ">=0", this.rhead + ">=0"});
+    ArrayList<Pokemon> ps = getRows(new String[]{this.lhead + ">=0", this.rhead + ">=0"}, this.rhead);
     float barH = chartH / ps.size();
     for (int i = 0; i < ps.size(); i++) {
       Pokemon p = ps.get(i);
@@ -139,7 +147,10 @@ public class Histogram extends Chart {
   
   public void onOver() {
     Bar over = onWhichBar();
-    if (over != null) this.controller.addHovered(over.p.id);
+    if (over != null) {
+      this.controller.addHovered(over.p.id);
+      tooltips.add(over);
+    }
   }
   
   public void onClick() {
