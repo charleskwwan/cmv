@@ -53,7 +53,7 @@ public class ScatterPlot extends Chart {
     }
     
     public void drawImage() {
-      image(this.p.getImage(), this.x - this.imgSize/2, this.y - this.imgSize/2, imgSize, imgSize);
+      image(getPokeImage(this.p.id), this.x - this.imgSize/2, this.y - this.imgSize/2, imgSize, imgSize);
     }
     
     public void drawTooltip() {

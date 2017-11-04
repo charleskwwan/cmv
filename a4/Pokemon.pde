@@ -2,6 +2,7 @@ final String[] pokeTypes = {"Normal", "Fire", "Water", "Electric", "Grass", "Ice
                             "Poison", "Ground", "Flying", "Psychic", "Bug", "Rock", "Ghost",
                             "Dragon", "Dark", "Steel", "Fairy", ""};
 final HashMap<String, Integer> pokeColors = makePokeColors();
+final HashMap<Integer, PImage> pokeImages = new HashMap<Integer, PImage>();
 
 public class Pokemon {
   public int id;
@@ -26,15 +27,6 @@ public class Pokemon {
   public String preEvolution;
   public String eggGroup1;
   public String eggGroup2;
-  private PImage image = null;
-  
-  public PImage getImage() {
-    if (this.image == null) {
-      String fname = String.valueOf(id) + ".png";
-      this.image = loadImage(fname);
-    }
-    return this.image;
-  }
   
   private Object get(String name) {
     try {
@@ -81,4 +73,14 @@ HashMap<String, Integer> makePokeColors() {
   colors.put("Fairy", #D685AD);
   colors.put("", 0); // no type
   return colors;
+}
+
+PImage getPokeImage(int id) {
+  if (!pokeImages.containsKey(id)) {
+    PImage image = loadImage(String.valueOf(id) + ".png");
+    pokeImages.put(id, image);
+    return image;
+  } else {
+    return pokeImages.get(id);
+  }
 }
