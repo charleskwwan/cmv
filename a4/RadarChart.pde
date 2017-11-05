@@ -4,7 +4,6 @@ static final int NUM_POINTS = 6;
 public class RadarChart extends Chart {
   private ArrayList<PVector> vertices;
   private ArrayList<Slice> slices;
-  private ArrayList<PShape> sections;
   private float radius;
   private ArrayList<PShape> polygons;
   private String[] headers;
@@ -22,7 +21,6 @@ public class RadarChart extends Chart {
     this.radius = min(w, h) / 2;
     this.vertices = new ArrayList<PVector>();
     this.polygons = new ArrayList<PShape>();
-    this.sections = new ArrayList<PShape>();
     this.slices = new ArrayList<Slice>();
     this.pickbuffer = createGraphics(width, height);
 
@@ -33,9 +31,7 @@ public class RadarChart extends Chart {
       vertices.add(new PVector(sx, sy));
       vertex(sx, sy);
     }
-
-    setMaxAndAvg();
-
+    
     // Create embellishment polygons
     float intervalSize = radius / NUM_INTERVALS;
     float r = radius;
@@ -52,6 +48,7 @@ public class RadarChart extends Chart {
       start += degree;
     }
     
+    setMaxAndAvg();
     createDataShape();
   }
 
@@ -69,7 +66,6 @@ public class RadarChart extends Chart {
       polygon.vertex(sx, sy);
     }
     polygon.endShape(CLOSE);
-
     return polygon;
   }
 
@@ -85,31 +81,22 @@ public class RadarChart extends Chart {
   }
 
   void drawEmbellishments() {
-    float cX = getCenterX();
-    float cY = getCenterY();    
-
-    // draw polygons    
-    for (PShape shape : polygons) {
-      shape(shape);
-    }
-
-    // center dot
-    fill(0);
+    fill(0);  
     ellipseMode(CENTER);
-    ellipse(cX, cY, 2, 2);
+    
+    for (PShape shape : polygons) shape(shape);   // draw polygons    
+    
+    ellipse(getCenterX(), getCenterY(), 2, 2);    // center dot
 
-    // labels
-    for (int i = 0; i < NUM_POINTS; i++) {
+    for (int i = 0; i < NUM_POINTS; i++) {        // labels
       text(headers[i], vertices.get(i).x + 10, vertices.get(i).y + 10);
       text(maxes[i], vertices.get(i).x, vertices.get(i).y);
     }
 
-    // draw lines from dot to midpoint of each side
-    for (int i = 1; i <= NUM_POINTS; i++) {
+    for (int i = 1; i <= NUM_POINTS; i++) {       // draw lines from dot to midpoint of each side
       float midpointX = lerp(vertices.get(i).x, vertices.get(i-1).x, .5);
       float midpointY = lerp(vertices.get(i).y, vertices.get(i-1).y, .5);
-
-      line(cX, cY, midpointX, midpointY);
+      line(getCenterX(), getCenterY(), midpointX, midpointY);
     }
   }
 
@@ -125,7 +112,9 @@ public class RadarChart extends Chart {
       polygon(getCenterX(), getCenterY(), r, NUM_POINTS, pickbuffer);
       r -= intervalSize;
     }
-
+    
+    pickbuffer.fill(255);
+    pickbuffer.shape(data);
     pickbuffer.endDraw();
   }
 
@@ -146,7 +135,6 @@ public class RadarChart extends Chart {
     }
 
     rangeMax = (NUM_INTERVALS - intervalIndex) / float(NUM_INTERVALS) * maxes[sliceIndex];
-
     setFilter(new String[]{ headers[sliceIndex] }, new float[]{ rangeMax });
   }
 
@@ -187,9 +175,9 @@ public class RadarChart extends Chart {
     strokeWeight(1);
     fill(255);
 
-    drawPickBuffer();
     drawEmbellishments();
     drawData();
+    drawPickBuffer();
   }
 
   void reset() {
@@ -217,18 +205,16 @@ public class RadarChart extends Chart {
   }
 
   void setMaxAndAvg() {
-    // Get max and averages for each column
     for (int i = 0; i < headers.length; i++) {
       maxes[i] = (float) ListUtils.maxInt(getColumnInt(headers[i]));
       averages[i] = (float) ListUtils.averageInt(getColumnInt(headers[i]));
     }
-    
     createDataShape();
   }
 
   private class Slice {
     private float x, y, r, start, stop;
-    PShape arc;      // TODO make own draw method
+    PShape arc;  // TODO make own draw method
 
     Slice(float x, float y, float r, float start, float stop) {
       this.x = x;
