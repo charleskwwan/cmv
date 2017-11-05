@@ -31,17 +31,18 @@ void setup() {
 void draw() {
   background(255);
   controller.removeAllHovered();
-  mouseOver();
+  
   //scatter.draw();
   //pies.draw();
   //tooltips.draw();
   radar.draw();
-  radar.onHover();    // TODO: why does this have to be after radar.draw()?
+  mouseOver();
 }
 
 void mouseOver() {
   //scatter.onOver();
   //pies.onOver();
+  radar.onOver();
   
 }
 

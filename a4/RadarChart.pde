@@ -148,7 +148,7 @@ public class RadarChart extends Chart {
     this.controller.addFilters(rangeFilters);
   }
 
-  void onHover() {
+  void onOver() {
     for (int i = 0; i < NUM_INTERVALS; i++) {
       if (pickbuffer.get(mouseX, mouseY) == color(i)) {
         polygons.get(i).setFill(#deeff5);
