@@ -18,10 +18,12 @@ Tooltips tooltips;
 Pokedex pokedex;
 
 ScatterPlot scatter;
+RadarChart radar;
 NestedPies pies;
 Histogram histo;
 
 void setup() {
+
   size(1600, 900);
   
   table = new PokeTable("pokemon.db", "pokemon");
@@ -31,11 +33,13 @@ void setup() {
   controller.addChart(pokedex);
   
   scatter = new ScatterPlot(960, 40, 600, 290, controller, table, "wgt", "hgt");
-  histo = new Histogram(960, 350, 600, 250, controller, table, "percentMale", "percentFemale");
-  pies = new NestedPies(40, 100, 920, 780, controller, table, new String[]{"type1", "type2"});
+  radar = new RadarChart(960, 350, 600, 250, controller, table, new String[]{"hp", "attack", "defense", "spattack", "spdefense", "speed"});
+  histo = new Histogram(960, 630, 600, 250, controller, table, "percentMale", "percentFemale");
+  pies = new NestedPies(80, 100, 920, 780, controller, table, new String[]{"type1", "type2"});
   controller.addChart(scatter);
   controller.addChart(histo);
   controller.addChart(pies);
+  controller.addChart(radar);
 }
 
 void draw() {
@@ -47,12 +51,15 @@ void draw() {
   histo.draw();
   pies.draw();
   tooltips.draw();
+  radar.draw();
+  
 }
 
 void mouseOver() {
   scatter.onOver();
   histo.onOver();
   pies.onOver();
+  radar.onOver();
 }
 
 void mousePressed() {
@@ -65,6 +72,7 @@ void mouseReleased() {
 
 void mouseClicked() {
   controller.onClick();
+  radar.onClick();
   scatter.onClick();
   histo.onClick();
   pies.onClick();

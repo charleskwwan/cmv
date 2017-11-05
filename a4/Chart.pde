@@ -28,4 +28,10 @@ public abstract class Chart extends ViewPort implements View {
     for (Pokemon p : this.controller) doubles.add(p.getDouble(column));
     return doubles;
   }
+  
+  protected ArrayList<Integer> getColumnInt(String column) {
+    ArrayList<Integer> integers = new ArrayList<Integer>();
+    for (Pokemon p : this.controller) integers.add(p.getInt(column));
+    return integers;
+  }
 }

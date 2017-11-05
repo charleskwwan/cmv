@@ -44,6 +44,14 @@ public static class ListUtils {
     return (int)minDouble(toDoubles(list));
   }
   
+  public static double averageDouble(ArrayList<Double> list) {
+    return sumDouble(list) / list.size();
+  }
+  
+  public static int averageInt(ArrayList<Integer> list) {
+    return (int) averageDouble(toDoubles(list));
+  }
+  
   private static <T extends Number> ArrayList<Double> toDoubles(ArrayList<T> list) {
     ArrayList<Double> doubles = new ArrayList<Double>();
     for (T n : list) doubles.add(n.doubleValue());
