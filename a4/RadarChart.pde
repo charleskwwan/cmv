@@ -1,5 +1,6 @@
 static final int NUM_INTERVALS = 5;
 static final int NUM_POINTS = 6;
+static final int MAX_VALUE = 255;
 
 public class RadarChart extends Chart {
   private ArrayList<PVector> vertices;
@@ -7,16 +8,15 @@ public class RadarChart extends Chart {
   private float radius;
   private ArrayList<PShape> polygons;
   private String[] headers;
-  private float[] maxes;
   private float[] averages;
   private PGraphics pickbuffer;
   private PShape data;
+  private PShape hoveredData;
 
   public RadarChart(float x, float y, float w, float h, Controller ctrl, PokeTable tbl, String[] headers) {
     super(x, y, w, h, ctrl, tbl);
 
     this.headers = headers;
-    this.maxes = new float[headers.length];
     this.averages = new float[headers.length];
     this.radius = min(w, h) / 2;
     this.vertices = new ArrayList<PVector>();
@@ -50,8 +50,8 @@ public class RadarChart extends Chart {
       start += degree;
     }
     
-    setMaxAndAvg();
-    createDataShape();
+    setAvg();
+    data = createDataShape(averages);
   }
 
   PShape polygon(float x, float y, float radius, int npoints) {
@@ -90,15 +90,21 @@ public class RadarChart extends Chart {
     
     ellipse(getCenterX(), getCenterY(), 2, 2);    // center dot
 
-    for (int i = 0; i < NUM_POINTS; i++) {        // labels
+    for (int i = 0; i < NUM_POINTS; i++) {
+      // column labels
       text(headers[i], vertices.get(i).x + 10, vertices.get(i).y + 10);
-      text(maxes[i], vertices.get(i).x, vertices.get(i).y);
-    }
-
-    for (int i = 1; i <= NUM_POINTS; i++) {       // draw lines from dot to midpoint of each side
-      float midpointX = lerp(vertices.get(i).x, vertices.get(i-1).x, .5);
-      float midpointY = lerp(vertices.get(i).y, vertices.get(i-1).y, .5);
+      
+      // draw lines from dot to midpoint of each side
+      float midpointX = lerp(vertices.get(i+1).x, vertices.get(i).x, .5);
+      float midpointY = lerp(vertices.get(i+1).y, vertices.get(i).y, .5);
       line(getCenterX(), getCenterY(), midpointX, midpointY);
+    }
+    
+    // draw value labels on first line
+    float firstMidpointY = lerp(vertices.get(3).y, vertices.get(4).y, 1);
+    for (int i = 1; i <= NUM_INTERVALS; i++) {
+      float labelY = lerp(getCenterY(), firstMidpointY, i / float(NUM_INTERVALS));
+      text(String.valueOf(float(MAX_VALUE) / NUM_INTERVALS * i), getCenterX(), labelY);
     }
   }
 
@@ -115,8 +121,8 @@ public class RadarChart extends Chart {
       r -= intervalSize;
     }
     
-    pickbuffer.fill(255);
-    pickbuffer.shape(data);
+    //pickbuffer.fill(255);
+    //pickbuffer.shape(data);
     pickbuffer.endDraw();
   }
 
@@ -138,7 +144,7 @@ public class RadarChart extends Chart {
 
     if (intervalIndex == -1 || sliceIndex == -1) return;
 
-    rangeMax = (NUM_INTERVALS - intervalIndex) / float(NUM_INTERVALS) * maxes[sliceIndex];
+    rangeMax = (NUM_INTERVALS - intervalIndex) / float(NUM_INTERVALS) * MAX_VALUE;
     setFilter(new String[]{ headers[sliceIndex] }, new float[]{ rangeMax });
   }
 
@@ -172,6 +178,26 @@ public class RadarChart extends Chart {
 
   void drawData() {
     shape(data);
+    
+    // Draw hovered averages shape
+    fill(color(#006565), 75);
+    strokeWeight(2);
+    stroke(#0BBCC9);
+    
+    float[] hoveredAverages = new float[NUM_POINTS];
+    for (int i = 0; i < NUM_POINTS; i++) {
+      hoveredAverages[i] = (float) ListUtils.averageInt(getColumnIntOfHovered(headers[i]));  
+    }
+    PShape tempShape = createShape();
+    tempShape.beginShape();
+    for (int i = 0; i < NUM_POINTS; i++) {
+      float ratio = hoveredAverages[i] / MAX_VALUE;    
+      float pointX = lerp(getCenterX(), vertices.get(i).x, ratio);
+      float pointY = lerp(getCenterY(), vertices.get(i).y, ratio);
+      tempShape.vertex(pointX, pointY);
+    }
+    tempShape.endShape(CLOSE);
+    shape(tempShape);
   }
 
   void draw() {
@@ -185,35 +211,35 @@ public class RadarChart extends Chart {
   }
 
   void reset() {
-    setFilter(headers, maxes);
+    setFilter(headers, new float[]{MAX_VALUE, MAX_VALUE, MAX_VALUE, MAX_VALUE, MAX_VALUE, MAX_VALUE});
   }
 
   void update() {
-    setMaxAndAvg();
+    setAvg();
   }
   
-  void createDataShape() {
+  PShape createDataShape(float[] averages) {
     fill(255, 154, 154, 75);
     strokeWeight(2);
     stroke(#F44336);
     
-    data = createShape();
-    data.beginShape();
-    for (int i = 0; i < maxes.length; i++) {
-      float ratio = averages[i] / maxes[i];    
+    PShape shape = createShape();
+    shape.beginShape();
+    for (int i = 0; i < NUM_POINTS; i++) {
+      float ratio = averages[i] / MAX_VALUE;    
       float pointX = lerp(getCenterX(), vertices.get(i).x, ratio);
       float pointY = lerp(getCenterY(), vertices.get(i).y, ratio);
-      data.vertex(pointX, pointY);
+      shape.vertex(pointX, pointY);
     }
-    data.endShape(CLOSE);
+    shape.endShape(CLOSE);
+    return shape;
   }
 
-  void setMaxAndAvg() {
+  void setAvg() {
     for (int i = 0; i < headers.length; i++) {
-      maxes[i] = (float) ListUtils.maxInt(getColumnInt(headers[i]));
       averages[i] = (float) ListUtils.averageInt(getColumnInt(headers[i]));
     }
-    createDataShape();
+    data = createDataShape(averages);
   }
 
   private class Slice {

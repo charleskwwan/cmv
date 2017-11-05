@@ -34,4 +34,14 @@ public abstract class Chart extends ViewPort implements View {
     for (Pokemon p : this.controller) integers.add(p.getInt(column));
     return integers;
   }
+  
+  protected ArrayList<Integer> getColumnIntOfHovered(String column) {
+    ArrayList<Integer> integers = new ArrayList<Integer>();
+    for (Pokemon p : this.controller) {
+      if (this.controller.hovered.contains(p.id)) {
+        integers.add(p.getInt(column));
+      }
+    }
+    return integers;
+  }
 }
