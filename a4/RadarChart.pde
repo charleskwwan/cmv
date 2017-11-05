@@ -11,7 +11,6 @@ public class RadarChart extends Chart {
   private float[] averages;
   private PGraphics pickbuffer;
   private PShape data;
-  private PShape hoveredData;
 
   public RadarChart(float x, float y, float w, float h, Controller ctrl, PokeTable tbl, String[] headers) {
     super(x, y, w, h, ctrl, tbl);
@@ -55,7 +54,7 @@ public class RadarChart extends Chart {
   }
 
   PShape polygon(float x, float y, float radius, int npoints) {
-    fill(255);
+    fill(#f6f6f6);
     stroke(0);
     strokeWeight(1);
     
@@ -121,8 +120,6 @@ public class RadarChart extends Chart {
       r -= intervalSize;
     }
     
-    //pickbuffer.fill(255);
-    //pickbuffer.shape(data);
     pickbuffer.endDraw();
   }
 
@@ -159,19 +156,33 @@ public class RadarChart extends Chart {
   }
 
   void onOver() {
+    int intervalIndex = -1, sliceIndex = -1;
+    float rangeMax;
+    
     for (int i = 0; i < NUM_INTERVALS; i++) {
       if (pickbuffer.get(mouseX, mouseY) == color(i)) {
         polygons.get(i).setFill(#deeff5);
+        intervalIndex = i;
       } else {
-        polygons.get(i).setFill(255);
+        polygons.get(i).setFill(#f6f6f6);
       }
     }
 
     for (int i = 0; i < NUM_POINTS; i++) {
       if (slices.get(i).isOver()) {
         slices.get(i).arc.setFill(0);
+        sliceIndex = (i + 1) % NUM_POINTS;
       } else {
         slices.get(i).arc.setFill(255);
+      }
+    }
+
+    if (intervalIndex == -1 || sliceIndex == -1) return;
+
+    rangeMax = (NUM_INTERVALS - intervalIndex) / float(NUM_INTERVALS) * MAX_VALUE;
+    for (Pokemon p : this.controller) {
+      if (p.getInt(headers[sliceIndex]) < rangeMax) {
+        this.controller.addHovered(p.id);
       }
     }
   }
