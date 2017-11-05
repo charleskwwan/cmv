@@ -25,6 +25,12 @@ public abstract class Chart extends ViewPort {
     return doubles;
   }
   
+  protected ArrayList<Integer> getColumnInt(String column) {
+    ArrayList<Integer> integers = new ArrayList<Integer>();
+    for (Pokemon p : this.controller) integers.add(p.getInt(column));
+    return integers;
+  }
+  
   public abstract void draw();
   public abstract void update();
   public abstract void reset();
