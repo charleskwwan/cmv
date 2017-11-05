@@ -1,4 +1,4 @@
-public abstract class Chart extends ViewPort {
+public abstract class Chart extends ViewPort implements View {
   protected Controller controller;
   protected PokeTable table;
   
@@ -28,8 +28,4 @@ public abstract class Chart extends ViewPort {
     for (Pokemon p : this.controller) doubles.add(p.getDouble(column));
     return doubles;
   }
-  
-  public abstract void draw();
-  public abstract void update();
-  public abstract void reset();
 }

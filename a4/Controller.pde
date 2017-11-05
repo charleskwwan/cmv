@@ -3,14 +3,14 @@ public class Controller implements Iterable<Pokemon> {
   private ArrayList<Pokemon> ps;
   private HashSet<Integer> hovered;
   private HashSet<String> filters;
-  private ArrayList<Chart> charts;
+  private ArrayList<View> views;
   
   public Controller(PokeTable tbl) {
     this.tbl = tbl;
     this.filters = new HashSet<String>();
     this.ps = this.tbl.query(null, null);
     this.hovered = new HashSet<Integer>();
-    this.charts = new ArrayList<Chart>();
+    this.views = new ArrayList<View>();
   }
   
   public int size() {
@@ -27,7 +27,7 @@ public class Controller implements Iterable<Pokemon> {
   }
   
   public void addChart(Chart chart) {
-    this.charts.add(chart);
+    this.views.add(chart);
   }
   
   public void addHovered(int id) {
@@ -59,19 +59,19 @@ public class Controller implements Iterable<Pokemon> {
   public void addFilter(String filter) {
     this.filters.add(filter);
     reload();
-    for (Chart cht : this.charts) cht.update();
+    for (View vw : this.views) vw.update();
   }
   
   public void addFilters(String[] filter) {
     for (String f : filter) this.filters.add(f);
     reload();
-    for (Chart cht : this.charts) cht.update();
+    for (View vw : this.views) vw.update();
   }
   
   public void removeFilter(String filter) {
     this.filters.remove(filter);
     reload();
-    for (Chart cht : this.charts) cht.update();
+    for (View vw : this.views) vw.update();
   }
   
   public void removeColumnFilters(String column) {
@@ -81,13 +81,13 @@ public class Controller implements Iterable<Pokemon> {
       if (f.contains(column)) it.remove();
     }
     reload();
-    for (Chart cht : this.charts) cht.update();
+    for (View vw : this.views) vw.update();
   }
   
   public void removeAllFilters() {
     this.filters.clear();
     reload();
-    for (Chart cht : this.charts) cht.reset();
+    for (View vw : this.views) vw.reset();
   }
   
   public Set<String> getFilters() {
