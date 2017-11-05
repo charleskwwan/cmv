@@ -23,6 +23,8 @@ public class RadarChart extends Chart {
     this.polygons = new ArrayList<PShape>();
     this.slices = new ArrayList<Slice>();
     this.pickbuffer = createGraphics(width, height);
+    pickbuffer.beginDraw();        // need to load pickbuffer to prevent NPE
+    pickbuffer.endDraw();
 
     // Get vertices for each column
     for (float a = 0; a < TWO_PI; a += TWO_PI/NUM_POINTS) {
@@ -133,6 +135,8 @@ public class RadarChart extends Chart {
         sliceIndex = (i + 1) % NUM_POINTS;
       }
     }
+
+    if (intervalIndex == -1 || sliceIndex == -1) return;
 
     rangeMax = (NUM_INTERVALS - intervalIndex) / float(NUM_INTERVALS) * maxes[sliceIndex];
     setFilter(new String[]{ headers[sliceIndex] }, new float[]{ rangeMax });
