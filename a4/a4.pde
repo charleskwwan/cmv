@@ -29,17 +29,17 @@ void setup() {
   table = new PokeTable("pokemon.db", "pokemon");
   controller = new Controller(table);
   tooltips = new Tooltips();
-  pokedex = new Pokedex(0, 0, controller, table);
-  controller.addChart(pokedex);
+  pokedex = new Pokedex(0, 0, controller);
+  controller.addView(pokedex);
   
   scatter = new ScatterPlot(960, 40, 600, 290, controller, table, "wgt", "hgt");
   radar = new RadarChart(960, 350, 600, 250, controller, table, new String[]{"hp", "attack", "defense", "spattack", "spdefense", "speed"});
   histo = new Histogram(960, 630, 600, 250, controller, table, "percentMale", "percentFemale");
   pies = new NestedPies(80, 100, 920, 780, controller, table, new String[]{"type1", "type2"});
-  controller.addChart(scatter);
-  controller.addChart(histo);
-  controller.addChart(pies);
-  controller.addChart(radar);
+  controller.addView(scatter);
+  controller.addView(histo);
+  controller.addView(pies);
+  controller.addView(radar);
 }
 
 void draw() {

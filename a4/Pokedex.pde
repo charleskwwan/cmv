@@ -1,14 +1,18 @@
-public class Pokedex extends Chart {
+public class Pokedex implements View {
+  private float x, y;
   private final PImage pokeballImage = loadImage("pokeball.png");
+  private Controller controller;
   private Pokemon p;
   
-  public Pokedex(float x, float y, Controller ctrl, PokeTable tbl) {
-    super(x, y, 0, 0, ctrl, tbl);
+  public Pokedex(float x, float y, Controller ctrl) {
+    this.x = x;
+    this.y = y;
+    this.controller = ctrl;
     this.p = null;
   }
   
   public void draw() {
-    float imgX = getX() + 100, imgY = getY() + 100;
+    float imgX = this.x + 100, imgY = this.y + 100;
     float imgW = 180, imgH = 180;
 
     
@@ -16,8 +20,8 @@ public class Pokedex extends Chart {
     noStroke();
     fill(color(200, 0, 0));
     ellipse(imgX, imgY, 250, 250);
-    rect(getX(), getY(), 400, 100);
-    arc(getX() + 400, getY(), 200, 200, 0, radians(90), PIE);
+    rect(this.x, this.y, 400, 100);
+    arc(this.x + 400, this.y, 200, 200, 0, radians(90), PIE);
     
     // fg
     fill(255);
@@ -43,9 +47,6 @@ public class Pokedex extends Chart {
   }
   
   public void update() {
-    println("called");
-    Set<Integer> hovered = this.controller.getHovered();
-    if (hovered.size() == 1) for (Integer id : hovered) this.p = this.controller.get(id);
   }
   
   public void reset() {

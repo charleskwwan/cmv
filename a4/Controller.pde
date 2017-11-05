@@ -26,8 +26,8 @@ public class Controller implements Iterable<Pokemon> {
     return this.ps.iterator();
   }
   
-  public void addChart(Chart chart) {
-    this.views.add(chart);
+  public void addView(View vw) {
+    this.views.add(vw);
   }
   
   public void addHovered(int id) {
