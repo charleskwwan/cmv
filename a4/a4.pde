@@ -44,9 +44,7 @@ void setup() {
   pies = new NestedPies(80, 100, 670, 650, controller, table, new String[]{"type1", "type2"});
   layout = new DragLayout(0, 0, width, height, pies);
   layout.addCharts(new Chart[]{scatter, radar, histo});
-  
   controller.addViews(new View[]{pokedex, scatter, histo, pies});
-  //controller.addViews(new View[]{pokedex, scatter, histo, pies, radar});
   
   resetBtn = new RoundButton(50, height - 50, 150, 150, "Reset", color(255, 255, 0), #F7D02C, new Reset());
 }
@@ -63,28 +61,18 @@ void draw() {
 }
 
 void mouseOver() {
-  //scatter.onOver();
-  //histo.onOver();
-  //pies.onOver();
-  //radar.onOver();
   layout.onOver();
 }
 
 void mousePressed() {
-  //scatter.onPress();
   layout.onPress();
 }
 
 void mouseReleased() {
-  //scatter.onRelease();
   layout.onRelease();
 }
 
 void mouseClicked() {
-  //radar.onClick();
-  //scatter.onClick();
-  //histo.onClick();
-  //pies.onClick();
   layout.onClick();
   resetBtn.onClick();
 }

@@ -131,8 +131,8 @@ public class ScatterPlot extends Chart {
     
     // drag rectangle
     if (this.dragStart != null) {
-      stroke(230, 100);
-      fill(230, 100);
+      stroke(color(255, 255, 102), 100);
+      fill(color(255, 255, 102), 100);
       float otherx = mouseX < chartX ? chartX : (mouseX > chartX + chartW ? chartX + chartW : mouseX);
       float othery = mouseY < chartY ? chartY : (mouseY > chartY + chartH ? chartY + chartH : mouseY);
       rect(min(dragStart.fst, otherx), min(dragStart.snd, othery), abs(dragStart.fst - otherx), abs(dragStart.snd - othery)); 

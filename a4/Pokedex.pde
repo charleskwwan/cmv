@@ -1,5 +1,5 @@
 public class Pokedex extends Chart {
-  private final PImage pokeballImage = loadImage("pokeball.png");
+  private final PImage largePokeballImage = loadImage("large-pokeball.png");
   private Pokemon p;
   
   public Pokedex(float x, float y, float h, Controller ctrl, PokeTable tbl) {
@@ -25,7 +25,8 @@ public class Pokedex extends Chart {
     rect(circX, barY + 0.15 * barH, circW / 2, 0.7 * barH);
     arc(barX + barW - 0.925 * barH, barY + 0.15 * barH, 1.4 * barH, 1.4 * barH, 0, radians(90), PIE);
     
-    // circle 
+    // circle
+    noStroke();
     fill(color(200, 0, 0));
     ellipse(circX, circY, 2 * getHeight(), 2 * getHeight());
     // see if single pokemon first
@@ -57,6 +58,8 @@ public class Pokedex extends Chart {
       type1 = this.p.type1;
       type2 = this.p.type2;
     }
+    stroke(255);
+    strokeWeight(3);
     if (type1 == null && type2 == null) {
       fill(255);
       ellipse(circX, circY, 0.7 * circW, 0.7 * circH);
@@ -65,16 +68,16 @@ public class Pokedex extends Chart {
       ellipse(circX, circY, 0.7 * circW, 0.7 * circH);
     } else {
       fill(pokeColors.get(type1));
-      arc(circX, circY, 0.7 * circW, 0.7 * circH, 3*PI/4, 7*PI/4, PIE);
+      arc(circX, circY, 0.7 * circW, 0.7 * circH, 3*PI/4, 7*PI/4, OPEN);
       fill(pokeColors.get(type2));
-      arc(circX, circY, 0.7 * circW, 0.7 * circH, -PI/4, 3*PI/4, PIE);
+      arc(circX, circY, 0.7 * circW, 0.7 * circH, -PI/4, 3*PI/4, OPEN);
     }
+    strokeWeight(1);
     // draw pokemon finally
-    image(this.p == null ? pokeballImage : getPokeImage(this.p.id), circX - imgW/2, circY - imgH/2, imgW, imgH);
+    image(this.p == null ? largePokeballImage : getPokeImage(this.p.id), circX - imgW/2, circY - imgH/2, imgW, imgH);
     
     // text
     float textY = barY + 0.15 * barH + textAscent() + textDescent();
-    //textSize(15);
     fill(0);
     text("Name:", circX + circW/2 + 5, textY);
     fill(255);
@@ -94,7 +97,6 @@ public class Pokedex extends Chart {
       circX + circW/2 + 5 + textWidth("Second type: "),
       textY + 2 * (textAscent() + textDescent())
     );
-    //textSize(fontSize);
   }
   
   public void update() {

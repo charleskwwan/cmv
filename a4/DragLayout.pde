@@ -53,23 +53,23 @@ public class DragLayout extends ViewPort {
     }
   }
   
-  public void onPress() {
-    if (mouseButton != RIGHT) return;
-    
-    if (this.main.isOver()) {
-      this.selected = -1;
-    } else {
-      for (int i = 0; i < this.rest.size(); i++) {
-        if (this.rest.get(i).isOver()) {
-          this.selected = i;
-          break;
+  public void onPress() {  
+    if (mouseButton == RIGHT) {
+      if (this.main.isOver()) {
+        this.selected = -1;
+      } else {
+        for (int i = 0; i < this.rest.size(); i++) {
+          if (this.rest.get(i).isOver()) {
+            this.selected = i;
+            break;
+          }
         }
       }
-    }
-    
-    if (this.selected == null) {
-      this.main.onPress();
-      for (Chart cht : this.rest) cht.onPress();
+    } else if (mouseButton == LEFT) {
+      if (this.selected == null) {
+        this.main.onPress();
+        for (Chart cht : this.rest) cht.onPress();
+      }
     }
   }
 
