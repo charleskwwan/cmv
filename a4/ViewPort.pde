@@ -2,12 +2,7 @@ public class ViewPort {
   private float x, y, w, h, cx, cy;
   
   public ViewPort(float x, float y, float w, float h) {
-    this.x = x;
-    this.y = y;
-    this.w = w;
-    this.h = h;
-    this.cx = x + w / 2;
-    this.cy = y + h / 2;
+    set(x, y, w, h);
   }
   
   public float getX() {
@@ -32,6 +27,15 @@ public class ViewPort {
   
   public float getCenterY() {
     return this.cy;
+  }
+  
+  protected void set(float x, float y, float w, float h) {
+    this.x = x;
+    this.y = y;
+    this.w = w;
+    this.h = h;
+    this.cx = x + w / 2;
+    this.cy = y + h / 2;
   }
   
   public boolean isOver() {

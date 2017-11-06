@@ -30,6 +30,10 @@ public class Controller implements Iterable<Pokemon> {
     this.views.add(vw);
   }
   
+  public void addViews(View[] vws) {
+    for (View vw : vws) addView(vw);
+  }
+  
   public void addHovered(int id) {
     this.hovered.add(id);
   }

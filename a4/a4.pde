@@ -15,6 +15,7 @@ final int fontSize = 12;
 
 PokeTable table;
 Controller controller;
+DragLayout layout;
 Tooltips tooltips;
 Pokedex pokedex;
 
@@ -22,6 +23,11 @@ ScatterPlot scatter;
 RadarChart radar;
 NestedPies pies;
 Histogram histo;
+RoundButton resetBtn;
+
+public class Reset implements ButtonCallback {
+  public void f() { controller.removeAllFilters(); }
+}
 
 void setup() {
   size(1280, 800);
@@ -31,16 +37,18 @@ void setup() {
   controller = new Controller(table);
   tooltips = new Tooltips();
   pokedex = new Pokedex(0, 0, 100, controller, table);
-  controller.addView(pokedex);
   
   scatter = new ScatterPlot(750, 30, 500, 250, controller, table, "wgt", "hgt");
   radar = new RadarChart(750, 290, 500, 230, controller, table, new String[]{"hp", "attack", "defense", "spattack", "spdefense", "speed"});
   histo = new Histogram(750, 530, 500, 250, controller, table, "percentMale", "percentFemale");
   pies = new NestedPies(80, 100, 670, 650, controller, table, new String[]{"type1", "type2"});
-  controller.addView(scatter);
-  controller.addView(histo);
-  controller.addView(pies);
-  //controller.addView(radar);
+  layout = new DragLayout(0, 0, width, height, pies);
+  layout.addCharts(new Chart[]{scatter, radar, histo});
+  
+  controller.addViews(new View[]{pokedex, scatter, histo, pies});
+  //controller.addViews(new View[]{pokedex, scatter, histo, pies, radar});
+  
+  resetBtn = new RoundButton(50, height - 50, 150, 150, "Reset", color(255, 255, 0), #F7D02C, new Reset());
 }
 
 void draw() {
@@ -48,35 +56,37 @@ void draw() {
   controller.removeAllHovered();
   mouseOver();
   pokedex.draw();
-  scatter.draw();
-  histo.draw();
-  pies.draw();
+  layout.draw();
   tooltips.draw();
-  radar.draw();
+  resetBtn.draw();
   
 }
 
 void mouseOver() {
-  scatter.onOver();
-  histo.onOver();
-  pies.onOver();
-  radar.onOver();
+  //scatter.onOver();
+  //histo.onOver();
+  //pies.onOver();
+  //radar.onOver();
+  layout.onOver();
 }
 
 void mousePressed() {
-  scatter.onPress();
+  //scatter.onPress();
+  layout.onPress();
 }
 
 void mouseReleased() {
-  scatter.onRelease();
+  //scatter.onRelease();
+  layout.onRelease();
 }
 
 void mouseClicked() {
-  controller.onClick();
-  radar.onClick();
-  scatter.onClick();
-  histo.onClick();
-  pies.onClick();
+  //radar.onClick();
+  //scatter.onClick();
+  //histo.onClick();
+  //pies.onClick();
+  layout.onClick();
+  resetBtn.onClick();
 }
 
 HashMap<String, Integer> makePokeColors() {

@@ -65,9 +65,9 @@ public class Pokedex extends Chart {
       ellipse(circX, circY, 0.7 * circW, 0.7 * circH);
     } else {
       fill(pokeColors.get(type1));
-      arc(circX, circY, 0.7 * circW, 0.7 * circH, -PI/4, 3*PI/4, PIE);
-      fill(pokeColors.get(type2));
       arc(circX, circY, 0.7 * circW, 0.7 * circH, 3*PI/4, 7*PI/4, PIE);
+      fill(pokeColors.get(type2));
+      arc(circX, circY, 0.7 * circW, 0.7 * circH, -PI/4, 3*PI/4, PIE);
     }
     // draw pokemon finally
     image(this.p == null ? pokeballImage : getPokeImage(this.p.id), circX - imgW/2, circY - imgH/2, imgW, imgH);

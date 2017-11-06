@@ -2,7 +2,7 @@ public class ScatterPlot extends Chart {
   private String xhead, yhead;
   private double xlo, xhi, ylo, yhi;
   private Pair<Float, Float> dragStart;
-  private ArrayList<Point> pts;
+  public ArrayList<Point> pts;
   
   public ScatterPlot(float x, float y, float w, float h, Controller ctrl, PokeTable tbl, String xhead, String yhead) {
     super(x, y, w, h, ctrl, tbl);

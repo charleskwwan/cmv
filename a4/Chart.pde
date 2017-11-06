@@ -8,6 +8,13 @@ public abstract class Chart extends ViewPort implements View {
     this.table = tbl;
   }
   
+  public void setAll(float x, float y, float w, float h) {
+    if (getX() != x || getY() != y || getWidth() != w || getHeight() != h) {
+      super.set(x, y, w, h);
+      update();
+    }
+  }
+  
   protected ArrayList<Pokemon> getRows(String[] additionalFilters, String orderBy) {
     Set<String> ctrlSet = this.controller.getFilters();
     String[] ctrlFilters = ctrlSet.toArray(new String[ctrlSet.size()]);
@@ -34,4 +41,9 @@ public abstract class Chart extends ViewPort implements View {
     for (Pokemon p : this.controller) integers.add(p.getInt(column));
     return integers;
   }
+  
+  public void onOver() {}
+  public void onPress() {}
+  public void onRelease() {}
+  public void onClick() {}
 }
