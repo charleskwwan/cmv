@@ -11,6 +11,7 @@ final String[] pokeTypes = {"Normal", "Fire", "Water", "Electric", "Grass", "Ice
                             "Dragon", "Dark", "Steel", "Fairy", ""};
 final HashMap<String, Integer> pokeColors = makePokeColors();
 final HashMap<Integer, PImage> pokeImages = new HashMap<Integer, PImage>();
+final int fontSize = 12;
 
 PokeTable table;
 Controller controller;
@@ -23,23 +24,23 @@ NestedPies pies;
 Histogram histo;
 
 void setup() {
-
-  size(1600, 900);
+  size(1280, 800);
+  textSize(fontSize);
   
   table = new PokeTable("pokemon.db", "pokemon");
   controller = new Controller(table);
   tooltips = new Tooltips();
-  pokedex = new Pokedex(0, 0, controller);
+  pokedex = new Pokedex(0, 0, 100, controller, table);
   controller.addView(pokedex);
   
-  scatter = new ScatterPlot(960, 40, 600, 290, controller, table, "wgt", "hgt");
-  radar = new RadarChart(960, 350, 600, 250, controller, table, new String[]{"hp", "attack", "defense", "spattack", "spdefense", "speed"});
-  histo = new Histogram(960, 630, 600, 250, controller, table, "percentMale", "percentFemale");
-  pies = new NestedPies(80, 100, 920, 780, controller, table, new String[]{"type1", "type2"});
+  scatter = new ScatterPlot(750, 30, 500, 250, controller, table, "wgt", "hgt");
+  radar = new RadarChart(750, 290, 500, 230, controller, table, new String[]{"hp", "attack", "defense", "spattack", "spdefense", "speed"});
+  histo = new Histogram(750, 530, 500, 250, controller, table, "percentMale", "percentFemale");
+  pies = new NestedPies(80, 100, 670, 650, controller, table, new String[]{"type1", "type2"});
   controller.addView(scatter);
   controller.addView(histo);
   controller.addView(pies);
-  controller.addView(radar);
+  //controller.addView(radar);
 }
 
 void draw() {
