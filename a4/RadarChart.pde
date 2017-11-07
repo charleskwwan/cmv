@@ -227,7 +227,7 @@ public class RadarChart extends Chart {
   }
 
   void drawData() {
-    shape(data.shape);
+    data.draw();
     
     // Draw hovered averages shape
     fill(color(#006565), 75);
@@ -277,7 +277,7 @@ public class RadarChart extends Chart {
 
   private class Slice {
     private float x, y, r, start, stop;
-    PShape arc;  // TODO make own draw method
+    PShape arc;
 
     Slice(float x, float y, float r, float start, float stop) {
       this.x = x;
@@ -321,6 +321,10 @@ public class RadarChart extends Chart {
         shape.vertex(pointX, pointY);
       }
       shape.endShape(CLOSE); 
+     }
+     
+     void draw() {
+       shape(shape); 
      }
   }
 }
