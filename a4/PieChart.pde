@@ -83,6 +83,11 @@ public class PieChart extends Chart {
   }
     
   public void draw() {
+    if (this.controller.size() == 0) {
+      noFill();
+      stroke(0);
+      ellipse(getCenterX(), getCenterY(), getRadius()*2, getRadius()*2);
+    }
     for (Slice slc : this.slices) slc.draw();
   }
   
