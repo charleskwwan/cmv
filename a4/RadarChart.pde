@@ -13,7 +13,6 @@ public class RadarChart extends Chart {
     super(x, y, w, h, ctrl, tbl);
     this.headers = headers;
     this.averages = new float[headers.length];
-    this.radius = min(w, h) / 2;
     this.numIntervals = numIntervals;
     this.numPoints = numPoints;
     this.maxValue = maxValue;
@@ -29,6 +28,7 @@ public class RadarChart extends Chart {
   }
  
   void createShapes() {
+    this.radius = min(getWidth(), getHeight()) / 2;
     this.vertices = new ArrayList<PVector>();
     this.slices = new ArrayList<Slice>();
     this.pickbuffer = createGraphics(width, height);
@@ -61,7 +61,7 @@ public class RadarChart extends Chart {
           new PVector(lerp(getCenterX(), nextMidpointX, intervalRatio), lerp(getCenterY(), nextMidpointY, intervalRatio)),
           new PVector(lerp(getCenterX(), vertices.get(j).x, intervalRatio), lerp(getCenterY(), vertices.get(j).y, intervalRatio)),
           new PVector(lerp(getCenterX(), prevMidpointX, intervalRatio), lerp(getCenterY(), prevMidpointY, intervalRatio))
-        }, intervalRatio * maxValue, headers[j], this.controller.hovered.size());
+        }, intervalRatio * maxValue, (numIntervals - i - 1) / float(numIntervals) * maxValue, headers[j], this.controller.hovered.size());
       }
     }
 
@@ -147,21 +147,24 @@ public class RadarChart extends Chart {
   
     setFilter(
       new String[]{ headers[sliceIndex] }, 
-      new float[]{ (numIntervals - intervalIndex) / float(numIntervals) * maxValue });
+      new float[]{ (numIntervals - intervalIndex) / float(numIntervals) * maxValue },
+      new float[]{ (numIntervals - intervalIndex - 1) / float(numIntervals) * maxValue });
   }
 
-  void setFilter(String[] columns, float[] rangeMaxes) {
-    String[] rangeFilters = new String[columns.length];
+  void setFilter(String[] columns, float[] rangeMaxes, float[] rangeMins) {
+    ArrayList<String> rangeFilters = new ArrayList<String>();
 
-    for (int i = 0; i < columns.length; i++) 
-      rangeFilters[i] = columns[i] + "<=" + String.valueOf(rangeMaxes[i]);
+    for (int i = 0; i < columns.length; i++) {
+      rangeFilters.add(columns[i] + ">=" + String.valueOf(rangeMins[i]));
+      rangeFilters.add(columns[i] + "<=" + String.valueOf(rangeMaxes[i]));
+    }
     
     this.controller.addFilters(rangeFilters);
   }
 
   void onOver() {
     int intervalIndex = -1, sliceIndex = -1;
-    float rangeMax;
+    float rangeMax, rangeMin;
     Section hovered = null;
     
     for (int i = 0; i < numIntervals; i++) {
@@ -181,16 +184,17 @@ public class RadarChart extends Chart {
     if (intervalIndex == -1 || sliceIndex == -1) return;
 
     rangeMax = (numIntervals - intervalIndex) / float(numIntervals) * maxValue;
+    rangeMin = (numIntervals - intervalIndex - 1) / float(numIntervals) * maxValue;
     for (Pokemon p : this.controller) {
-      if (p.getInt(headers[sliceIndex]) < rangeMax) {
+      int count = p.getInt(headers[sliceIndex]);
+      if (count <= rangeMax && count >= rangeMin) {
         this.controller.addHovered(p.id);
-        if (hovered != null) {
-          hovered.setCount(this.controller.hovered.size());
-          tooltips.add(hovered);
-        }
       }
     }
-    
+    if (hovered != null) {
+      hovered.setCount(this.controller.hovered.size());
+      tooltips.add(hovered);
+    }
     
   }
 
@@ -217,7 +221,7 @@ public class RadarChart extends Chart {
   }
 
   void reset() {
-    setFilter(headers, ListUtils.filled(numPoints, maxValue));
+    setFilter(headers, ListUtils.filled(numPoints, maxValue), ListUtils.filled(numPoints, 0));
     createShapes();
   }
 
@@ -273,11 +277,11 @@ public class RadarChart extends Chart {
   
   private class Section implements Tooltip {
     private PShape shape;
-    private float max;
+    private float max, min;
     private String header;
     private int count;
     
-    Section(PVector[] vertices, float max, String header, int count) {
+    Section(PVector[] vertices, float max, float min, String header, int count) {
       fill(255);
       stroke(0);
       strokeWeight(1);
@@ -291,6 +295,7 @@ public class RadarChart extends Chart {
       shape.endShape(CLOSE);
         
       this.max = max;
+      this.min = min;
       this.header = header;
       this.count = 0;
     }
@@ -305,7 +310,7 @@ public class RadarChart extends Chart {
     
     void drawTooltip() {
       String headerStr = "";
-      String rangeStr = "range: 0-" + (int) this.max;
+      String rangeStr = "range: " + (int) this.min + "-" + (int) this.max;
       String countStr = "count: " + String.valueOf(count);
       float ttW = max(textWidth(headerStr), textWidth(rangeStr), textWidth(countStr)) + 15;
       float ttH = 3 * (textAscent() + textDescent()) + 10;
