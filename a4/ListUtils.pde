@@ -52,6 +52,12 @@ public static class ListUtils {
     return (int) averageDouble(toDoubles(list));
   }
   
+  public static float[] filled(int n, float value) {
+    float[] filled = new float[n];
+    for (int i = 0; i < n; i++) filled[i] = value;
+    return filled;
+  }
+  
   private static <T extends Number> ArrayList<Double> toDoubles(ArrayList<T> list) {
     ArrayList<Double> doubles = new ArrayList<Double>();
     for (T n : list) doubles.add(n.doubleValue());

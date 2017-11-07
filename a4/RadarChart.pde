@@ -14,17 +14,24 @@ public class RadarChart extends Chart {
 
   public RadarChart(float x, float y, float w, float h, Controller ctrl, PokeTable tbl, String[] headers) {
     super(x, y, w, h, ctrl, tbl);
-
     this.headers = headers;
     this.averages = new float[headers.length];
     this.radius = min(w, h) / 2;
+
+    createShapes();
+    setAvg();
+    data = new DataShape(averages);
+  }
+ 
+  void createShapes() {
     this.vertices = new ArrayList<PVector>();
     this.slices = new ArrayList<Slice>();
     this.pickbuffer = createGraphics(width, height);
     this.sections = new PShape[NUM_INTERVALS][NUM_POINTS];
+    
     pickbuffer.beginDraw();        // need to load pickbuffer to prevent NPE
     pickbuffer.endDraw();
-
+    
     // Get vertices for each column
     for (float a = 0; a < TWO_PI; a += TWO_PI/NUM_POINTS) {
       float sx = getCenterX() + cos(a) * radius;
@@ -34,6 +41,8 @@ public class RadarChart extends Chart {
     }
     
     // Create embellishment sections (of polygons)
+    fill(255);
+    stroke(0);
     for (int i = 0; i < NUM_INTERVALS; i++) {
       for (int j = 0; j < NUM_POINTS; j++) {
         PShape section = createShape();
@@ -71,37 +80,7 @@ public class RadarChart extends Chart {
     for (int i = 0; i < NUM_POINTS; i++) {
       slices.add(new Slice(getCenterX(), getCenterY(), radius*2, start, start+degree));
       start += degree;
-    }
-    
-    setAvg();
-    data = new DataShape(averages);
-    
-    for (int i = 0; i < NUM_POINTS; i++) {
-      for(int j = 0; j < NUM_INTERVALS; j++) {
-        PShape section = createShape();
-        section.beginShape();
-        
-        
-        section.endShape(CLOSE);
-      }
-    }
-  }
-
-  PShape polygon(float x, float y, float radius, int npoints) {
-    fill(#f6f6f6);
-    stroke(0);
-    strokeWeight(1);
-    
-    PShape polygon = createShape();
-    float angle = TWO_PI / npoints;
-    polygon.beginShape();
-    for (float a = 0; a < TWO_PI; a += angle) {
-      float sx = x + cos(a) * radius;
-      float sy = y + sin(a) * radius;
-      polygon.vertex(sx, sy);
-    }
-    polygon.endShape(CLOSE);
-    return polygon;
+    } 
   }
 
   void polygon(float x, float y, float radius, int npoints, PGraphics pg) {
@@ -134,11 +113,6 @@ public class RadarChart extends Chart {
       if (vertices.get(i).x < getCenterX()) xOffset = -(textWidth(toDisplay));
       if (vertices.get(i).y < getCenterY()) yOffset = -yOffset;
       text(toDisplay, vertices.get(i).x + xOffset, vertices.get(i).y + yOffset);
-      
-      // draw lines from dot to midpoint of each side
-      float midpointX = lerp(vertices.get(i+1).x, vertices.get(i).x, .5);
-      float midpointY = lerp(vertices.get(i+1).y, vertices.get(i).y, .5);
-      line(getCenterX(), getCenterY(), midpointX, midpointY);
     }
     
     // draw value labels on upper vertical line
@@ -172,19 +146,14 @@ public class RadarChart extends Chart {
     float rangeMax;
 
     for (int i = 0; i < NUM_INTERVALS; i++) {
-      if (pickbuffer.get(mouseX, mouseY) == color(i)) {
-        intervalIndex = i;
-      }
+      
+      if (pickbuffer.get(mouseX, mouseY) == color(i)) intervalIndex = i;
     }
 
     for (int i = 0; i < NUM_POINTS; i++) {
-      if (slices.get(i).isOver()) {
-        sliceIndex = (i + 1) % NUM_POINTS;
-      }
+      if (slices.get(i).isOver()) sliceIndex = (i + 1) % NUM_POINTS;
     }
-
     if (intervalIndex == -1 || sliceIndex == -1) return;
-
     rangeMax = (NUM_INTERVALS - intervalIndex) / float(NUM_INTERVALS) * MAX_VALUE;
     setFilter(new String[]{ headers[sliceIndex] }, new float[]{ rangeMax });
   }
@@ -253,7 +222,6 @@ public class RadarChart extends Chart {
   void draw() {
     stroke(#545454);
     strokeWeight(1);
-    fill(255);
     
     drawEmbellishments();
     drawData();
@@ -261,10 +229,13 @@ public class RadarChart extends Chart {
   }
 
   void reset() {
-    setFilter(headers, new float[]{MAX_VALUE, MAX_VALUE, MAX_VALUE, MAX_VALUE, MAX_VALUE, MAX_VALUE});
+    setFilter(headers, ListUtils.filled(NUM_POINTS, MAX_VALUE));
+    createShapes();
+    setAvg();
   }
 
   void update() {
+    createShapes();
     setAvg();
   }
 
@@ -277,7 +248,6 @@ public class RadarChart extends Chart {
 
   private class Slice {
     private float x, y, r, start, stop;
-    PShape arc;
 
     Slice(float x, float y, float r, float start, float stop) {
       this.x = x;
@@ -285,8 +255,6 @@ public class RadarChart extends Chart {
       this.r = r;
       this.start = start;
       this.stop = stop;
-
-      arc = createShape(ARC, getCenterX(), getCenterY(), radius*2, radius*2, start, stop, PIE);
     }
 
     boolean isOver() {

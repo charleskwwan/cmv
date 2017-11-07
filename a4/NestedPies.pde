@@ -21,6 +21,16 @@ public class NestedPies extends Chart {
     for (int i = 0; i <= getLast(); i++) this.pcharts.get(i).draw();
   }
   
+  @Override
+  public void setAll(float x, float y, float w, float h) {
+    set(x, y, w, h);
+    for (int i = 0; i <= getLast(); i++) {
+      float xShift = i * (0.1 * w / this.pcharts.size());
+      float yShift = i * (0.1 * h / this.pcharts.size());
+      this.pcharts.get(i).setAll(x + xShift, y + yShift, w - 2*xShift, h - 2*yShift);
+    }
+  }
+  
   public void update() {
     if (this.controller.size() == 1) this.upTo = this.pcharts.size();
     for (int i = 0; i <= getLast(); i++) this.pcharts.get(i).update();
