@@ -2,7 +2,7 @@ public class RadarChart extends Chart {
   private int numIntervals, numPoints, maxValue;
   private ArrayList<PVector> vertices;
   private ArrayList<Slice> slices;
-  private PShape[][] sections;
+  private Section[][] sections;
   private float radius;
   private String[] headers;
   private float[] averages;
@@ -32,7 +32,7 @@ public class RadarChart extends Chart {
     this.vertices = new ArrayList<PVector>();
     this.slices = new ArrayList<Slice>();
     this.pickbuffer = createGraphics(width, height);
-    this.sections = new PShape[numIntervals][numPoints];
+    this.sections = new Section[numIntervals][numPoints];
     
     pickbuffer.beginDraw();        // need to load pickbuffer to prevent NPE
     pickbuffer.endDraw();
@@ -46,12 +46,8 @@ public class RadarChart extends Chart {
     }
     
     // Create embellishment sections (of polygons)
-    fill(255);
-    stroke(0);
-    strokeWeight(1);
     for (int i = 0; i < numIntervals; i++) {
       for (int j = 0; j < numPoints; j++) {
-        PShape section = createShape();
         int prevIndex = j == 0 ? numPoints - 1 : j - 1;
         int nextIndex = j == numPoints - 1 ? 0 : j + 1;
         float nextMidpointX = lerp(vertices.get(nextIndex).x, vertices.get(j).x, .5);
@@ -59,25 +55,13 @@ public class RadarChart extends Chart {
         float prevMidpointX = lerp(vertices.get(j).x, vertices.get(prevIndex).x, .5);
         float prevMidpointY = lerp(vertices.get(j).y, vertices.get(prevIndex).y, .5);
         float intervalRatio = (numIntervals - i) / float(numIntervals);
-        
-        section.beginShape();
-        section.vertex(getCenterX(), getCenterY());
-        section.vertex(
-          lerp(getCenterX(), nextMidpointX, intervalRatio),
-          lerp(getCenterY(), nextMidpointY, intervalRatio)
-        );
-        section.vertex(
-          lerp(getCenterX(), vertices.get(j).x, intervalRatio),
-          lerp(getCenterY(), vertices.get(j).y, intervalRatio)
-        );
-        section.vertex(
-          lerp(getCenterX(), prevMidpointX, intervalRatio),
-          lerp(getCenterY(), prevMidpointY, intervalRatio)
-        );
-        section.vertex(getCenterX(), getCenterY());
-        section.endShape(CLOSE);
-        
-        sections[i][j] = section;
+       
+        sections[i][j] = new Section(new PVector[]{ 
+          new PVector(getCenterX(), getCenterY()),
+          new PVector(lerp(getCenterX(), nextMidpointX, intervalRatio), lerp(getCenterY(), nextMidpointY, intervalRatio)),
+          new PVector(lerp(getCenterX(), vertices.get(j).x, intervalRatio), lerp(getCenterY(), vertices.get(j).y, intervalRatio)),
+          new PVector(lerp(getCenterX(), prevMidpointX, intervalRatio), lerp(getCenterY(), prevMidpointY, intervalRatio))
+        }, intervalRatio * maxValue, headers[j], this.controller.hovered.size());
       }
     }
 
@@ -111,7 +95,7 @@ public class RadarChart extends Chart {
     
     for(int i = 0; i < numIntervals; i++) {      // draw sections 
      for(int j =0; j < numPoints; j++) {
-       shape(sections[i][j]); 
+       sections[i][j].draw(); 
      }
     }
 
@@ -178,6 +162,7 @@ public class RadarChart extends Chart {
   void onOver() {
     int intervalIndex = -1, sliceIndex = -1;
     float rangeMax;
+    Section hovered = null;
     
     for (int i = 0; i < numIntervals; i++) {
       for (int j = 0; j < numPoints; j++) {
@@ -185,7 +170,8 @@ public class RadarChart extends Chart {
         if (pickbuffer.get(mouseX, mouseY) == color(i) && slices.get(j).isOver()) {
           intervalIndex = i;
           sliceIndex = currSliceIndex;
-          sections[i][currSliceIndex].setFill(#deeff5);
+          hovered = sections[i][currSliceIndex];
+          hovered.setFill(#deeff5);
         } else {
           sections[i][currSliceIndex].setFill(#f6f6f6);
         }
@@ -198,8 +184,14 @@ public class RadarChart extends Chart {
     for (Pokemon p : this.controller) {
       if (p.getInt(headers[sliceIndex]) < rangeMax) {
         this.controller.addHovered(p.id);
+        if (hovered != null) {
+          hovered.setCount(this.controller.hovered.size());
+          tooltips.add(hovered);
+        }
       }
     }
+    
+    
   }
 
   void drawData() {
@@ -277,5 +269,52 @@ public class RadarChart extends Chart {
      }
      
      void draw() { shape(shape); }
+  }
+  
+  private class Section implements Tooltip {
+    private PShape shape;
+    private float max;
+    private String header;
+    private int count;
+    
+    Section(PVector[] vertices, float max, String header, int count) {
+      fill(255);
+      stroke(0);
+      strokeWeight(1);
+      
+      shape = createShape();
+      shape.beginShape();
+      for (int i = 0; i < vertices.length; i++) {
+        shape.vertex(vertices[i].x, vertices[i].y); 
+      }
+      
+      shape.endShape(CLOSE);
+        
+      this.max = max;
+      this.header = header;
+      this.count = 0;
+    }
+    
+    void draw() { shape(shape); }
+    
+    void setFill(color c) { shape.setFill(c); }
+    
+    void setCount(int count) {
+      this.count = count;
+    }
+    
+    void drawTooltip() {
+      String headerStr = "";
+      String rangeStr = "range: 0-" + (int) this.max;
+      String countStr = "count: " + String.valueOf(count);
+      float ttW = max(textWidth(headerStr), textWidth(rangeStr), textWidth(countStr)) + 15;
+      float ttH = 3 * (textAscent() + textDescent()) + 10;
+      fill(30, 200);
+      rect(mouseX, mouseY - ttH - 5, ttW, ttH);
+      fill(255);
+      text(this.header, mouseX + 5, mouseY - (textAscent() + textDescent()));
+      text(rangeStr, mouseX + 5, mouseY - 2 * (textAscent() + textDescent()));
+      text(countStr, mouseX + 5, mouseY - 3 * (textAscent() + textDescent()));
+    }
   }
 }
