@@ -39,12 +39,12 @@ void setup() {
   pokedex = new Pokedex(0, 0, 100, controller, table);
   
   scatter = new ScatterPlot(750, 30, 500, 250, controller, table, "wgt", "hgt");
-  radar = new RadarChart(750, 290, 500, 230, controller, table, new String[]{"hp", "attack", "defense", "spattack", "spdefense", "speed"});
+  radar = new RadarChart(750, 290, 500, 230, controller, table, new String[]{"hp", "attack", "defense", "spattack", "spdefense", "speed"}, 6, 6, 255);
   histo = new Histogram(750, 530, 500, 250, controller, table, "percentMale", "percentFemale");
   pies = new NestedPies(80, 100, 670, 650, controller, table, new String[]{"type1", "type2"});
   layout = new DragLayout(0, 0, width, height, pies);
   layout.addCharts(new Chart[]{scatter, radar, histo});
-  controller.addViews(new View[]{pokedex, scatter, histo, pies});
+  controller.addViews(new View[]{pokedex, scatter, histo, pies, radar});
   
   resetBtn = new RoundButton(50, height - 50, 150, 150, "Reset", color(255, 255, 0), #F7D02C, new Reset());
 }
