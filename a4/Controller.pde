@@ -72,6 +72,12 @@ public class Controller implements Iterable<Pokemon> {
     for (View vw : this.views) vw.update();
   }
   
+  public void addFilters(ArrayList<String> filters) {
+    for (String f : filters) this.filters.add(f);
+    reload();
+    for (View vw : this.views) vw.update();
+  }
+  
   public void removeFilter(String filter) {
     this.filters.remove(filter);
     reload();
