@@ -2,7 +2,7 @@ public class ScatterPlot extends Chart {
   private String xhead, yhead;
   private double xlo, xhi, ylo, yhi;
   private Pair<Float, Float> dragStart;
-  private ArrayList<Point> pts;
+  public ArrayList<Point> pts;
   
   public ScatterPlot(float x, float y, float w, float h, Controller ctrl, PokeTable tbl, String xhead, String yhead) {
     super(x, y, w, h, ctrl, tbl);
@@ -131,8 +131,8 @@ public class ScatterPlot extends Chart {
     
     // drag rectangle
     if (this.dragStart != null) {
-      stroke(230, 100);
-      fill(230, 100);
+      stroke(color(255, 255, 102), 100);
+      fill(color(255, 255, 102), 100);
       float otherx = mouseX < chartX ? chartX : (mouseX > chartX + chartW ? chartX + chartW : mouseX);
       float othery = mouseY < chartY ? chartY : (mouseY > chartY + chartH ? chartY + chartH : mouseY);
       rect(min(dragStart.fst, otherx), min(dragStart.snd, othery), abs(dragStart.fst - otherx), abs(dragStart.snd - othery)); 

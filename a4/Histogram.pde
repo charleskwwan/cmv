@@ -115,7 +115,7 @@ public class Histogram extends Chart {
   private void makeBars() {
     this.bars.clear();
     float chartX = getChartX(), chartY = getChartY(), chartW = getChartWidth(), chartH = getChartHeight();
-    ArrayList<Pokemon> ps = getRows(new String[]{this.lhead + ">=0", this.rhead + ">=0"}, this.rhead);
+    ArrayList<Pokemon> ps = getRows(new String[]{this.lhead + ">=0", this.rhead + ">=0"}, this.lhead);
     float barH = chartH / ps.size();
     for (int i = 0; i < ps.size(); i++) {
       Pokemon p = ps.get(i);
