@@ -34,7 +34,7 @@ public class PieChart extends Chart {
       this.ps = ps;
     }
     
-    public void draw() {
+    public void draw() {      
       Set<Integer> hovered = PieChart.this.controller.getHovered();
       float rad = this.r;
       int opacity = 200;
@@ -83,6 +83,12 @@ public class PieChart extends Chart {
   }
     
   public void draw() {
+    if (this.controller.size() == 0) {
+      noFill();
+      stroke(0);
+      ellipse(getCenterX(), getCenterY(), getRadius()*2, getRadius()*2);
+      return;
+    }
     for (Slice slc : this.slices) slc.draw();
   }
   
