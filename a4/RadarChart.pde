@@ -10,7 +10,7 @@ public class RadarChart extends Chart {
   private String[] headers;
   private float[] averages;
   private PGraphics pickbuffer;
-  private PShape data;
+  private DataShape data;
 
   public RadarChart(float x, float y, float w, float h, Controller ctrl, PokeTable tbl, String[] headers) {
     super(x, y, w, h, ctrl, tbl);
@@ -74,7 +74,7 @@ public class RadarChart extends Chart {
     }
     
     setAvg();
-    data = createDataShape(averages);
+    data = new DataShape(averages);
     
     for (int i = 0; i < NUM_POINTS; i++) {
       for(int j = 0; j < NUM_INTERVALS; j++) {
@@ -133,7 +133,7 @@ public class RadarChart extends Chart {
       String toDisplay = headers[i];
       if (vertices.get(i).x < getCenterX()) xOffset = -(textWidth(toDisplay));
       if (vertices.get(i).y < getCenterY()) yOffset = -yOffset;
-      text(toDisplay + String.valueOf(i), vertices.get(i).x + xOffset, vertices.get(i).y + yOffset);
+      text(toDisplay, vertices.get(i).x + xOffset, vertices.get(i).y + yOffset);
       
       // draw lines from dot to midpoint of each side
       float midpointX = lerp(vertices.get(i+1).x, vertices.get(i).x, .5);
@@ -227,7 +227,7 @@ public class RadarChart extends Chart {
   }
 
   void drawData() {
-    shape(data);
+    shape(data.shape);
     
     // Draw hovered averages shape
     fill(color(#006565), 75);
@@ -267,29 +267,12 @@ public class RadarChart extends Chart {
   void update() {
     setAvg();
   }
-  
-  PShape createDataShape(float[] averages) {
-    fill(255, 154, 154, 75);
-    strokeWeight(2);
-    stroke(#F44336);
-    
-    PShape shape = createShape();
-    shape.beginShape();
-    for (int i = 0; i < NUM_POINTS; i++) {
-      float ratio = averages[i] / MAX_VALUE;    
-      float pointX = lerp(getCenterX(), vertices.get(i).x, ratio);
-      float pointY = lerp(getCenterY(), vertices.get(i).y, ratio);
-      shape.vertex(pointX, pointY);
-    }
-    shape.endShape(CLOSE);
-    return shape;
-  }
 
   void setAvg() {
     for (int i = 0; i < headers.length; i++) {
       averages[i] = (float) ListUtils.averageInt(getColumnInt(headers[i]));
     }
-    data = createDataShape(averages);
+    data = new DataShape(averages);
   }
 
   private class Slice {
@@ -319,5 +302,25 @@ public class RadarChart extends Chart {
 
       return inCircle && mouseRad > start && mouseRad < stop;
     }
+  }
+  
+  private class DataShape {
+     private PShape shape;
+     
+     DataShape(float[] averages) {
+      fill(255, 154, 154, 75);
+      strokeWeight(2);
+      stroke(#F44336);
+      
+      shape = createShape();
+      shape.beginShape();
+      for (int i = 0; i < NUM_POINTS; i++) {
+        float ratio = averages[i] / MAX_VALUE;    
+        float pointX = lerp(getCenterX(), vertices.get(i).x, ratio);
+        float pointY = lerp(getCenterY(), vertices.get(i).y, ratio);
+        shape.vertex(pointX, pointY);
+      }
+      shape.endShape(CLOSE); 
+     }
   }
 }
