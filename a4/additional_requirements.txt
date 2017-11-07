@@ -1,0 +1,20 @@
+comp177
+Vincent Tran, Charles Wan
+11/06/17
+
+Additional Features:
+1. 4th chart - histogram
+There were several unusued columns in our data set, and one that was easy to
+visualize was percentMale vs percentFemale. It also served as a test of how
+robus our CMV system was, which allowed fairly quick completion.
+
+2. Pokedex
+Given that the dataset was on Pokemon, we felt that we should include some sort
+of visual that allows us to see Pokemon more up-close. We created the 'Pokedex'
+after the famous machine from the Pokemon franchise to do so. It is essentially
+another chart that reacts to changes via the CMV system.
+
+3. Draggable charts
+It is possible to drag charts around and have them switch places. This allows
+users to get a closer look at certain charts, while having the rest in the
+periphery and still interactable.

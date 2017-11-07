@@ -1,0 +1,12 @@
+comp177
+Vincent Tran, Charles Wan
+11/06/17
+
+Vincent (specific):
+- Radar
+
+Charles (specific):
+- Scatter
+- Pies
+
+Rest together
